@@ -42,6 +42,19 @@ heldout indices; scripts use a documented deterministic 5% hash split unless an
 `--heldout` boolean `.npy` is supplied. To reproduce exact paper numbers, supply
 the authors' split with `--heldout`.
 
+For Claim 2 specifically, use the authors' bundled `data/Y.npz` artifact with
+the Table-1 runner. It contains the canonical Uber tensor from `demo.ipynb`;
+the locally rebuilt `DATA/uber.npy` is not byte-equivalent after spatial binning.
+The Table-1 model is `R=10, K=6` (12,580 parameters) and its comparable CP
+baseline is rank 49 (12,642 parameters). The 48,580-parameter count refers to
+the separate 400×400 qualitative figure, not the 100×100 Table-1 experiment.
+
+Run the full Table-1 check with:
+
+```bash
+python reproduce/claim2_uber_table1.py --data data/Y.npz
+```
+
 The published 48,580-parameter architecture/ranks are not encoded in the public
 quick-start source. Claim 5 therefore requires `--custom-model`, `--shapes`, and
 ranks from the paper authors' experiment configuration; the script independently
