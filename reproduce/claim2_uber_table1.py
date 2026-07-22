@@ -64,6 +64,6 @@ def main():
     y,h=load(a,(27,7,24,100,100)); shapes=dict(w=27,h=7,d=24,i=100,j=100,r=10,k=24)
     custom,ct=run(y,h,'wr,hr,dr,ikr,jkr->whdij',shapes,a)
     cp,pt=run(y,h,'wr,hr,dr,ir,jr->whdij',{**shapes,'r':188},a)
-    v1,v2=ct[-1],cp[-1]
+    v1,v2=custom[-1],cp[-1]
     report(a,{'claim':2,'implementation':'exact two-T4 i-sharded full-batch multiplicative updates','split':'provided' if a.heldout else 'hash-5%-NOT-paper-split','custom_parameters':48580,'cp_parameters':188*258,'custom_heldout_mse':v1,'cp_heldout_mse':v2,'seconds':{'custom':ct,'cp':pt},'targets':{'custom':.0101,'cp':.0104},'pass':abs(v1-.0101)<=.0005 and abs(v2-.0104)<=.0005})
 if __name__=='__main__': main()
