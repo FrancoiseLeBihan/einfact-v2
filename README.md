@@ -39,3 +39,24 @@ model.fit(Y)
 # Retrieve factors
 factors = model.get_params()
 
+ 1. L'argument obligatoire :
+
+  • --input-dir <chemin_vers_le_dossier> : Il est indispensable pour spécifier le dossier contenant les fichiers bruts
+  ICEWS (.tab ou .tsv).
+
+  2. L'argument à modifier pour coller au papier :
+
+  • --heldout-frac 0.1 : Dans le fichier 6_empirics.txt, les auteurs précisent : "we randomly assign each element of Y to
+  the training set with 90% probability and otherwise assign it to a heldout set" (ce qui implique que le heldout set
+  représente 10% des données). Or, dans le script prepare_icews.py, la valeur par défaut de --heldout-frac est définie à
+  0.05. Il faut donc explicitement la passer à 0.1.
+
+  3. Les arguments optionnels (car leurs valeurs par défaut sont déjà correctes) :
+
+  • --start-year 1995 et --end-year 2013 : Le papier mentionne utiliser les données "spanning 1995--2013". Le script
+  utilise par chance déjà ces valeurs par défaut, il n'est donc pas strictement nécessaire de les redéclarer, mais vous
+  pouvez le faire par souci d'explicitation.
+  • --seed 29482 : Déjà défini par défaut dans le code pour fixer l'aléatoire et garantir la reproductibilité de la
+  répartition train/heldout.
+
+
