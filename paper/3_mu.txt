@@ -1,0 +1,84 @@
+For any parameterization of $\Yhattensor$ by expression~\eqref{eq:contraction_structure} and loss function $\D$, we consider the minimization problem 
+\begin{align} \label{eq:obj}
+    \min_{\Theta^{\ms{(1)}}, \dots, \Theta^{\ms{(L)}}}\D(\Ytensor , \Yhattensor) = \sum_{\obs{\mathbf{i}}} \D(\yi, \mui), \quad \Tms{\ell} \geq \epsilon
+\end{align}
+(for a very small $\epsilon > 0$) to estimate $\all$. The general nonconvexity of \eqref{eq:obj} motivates an iterative algorithm that updates $\Tms{\ell}$ while fixing $\Tms{\ell'}$ for all $\ell' \neq \ell$. Objective~\eqref{eq:obj} is broad; we consider differentiable loss functions which satisfy a certain decomposability property stated in~\Cref{thm:update}. This decomposability property ensures the convergence of~\Cref{alg:mu}.~\looseness=-1 
+
+\begin{theorem}\label{thm:update}
+Suppose that  $\D(x,y)$ is differentiable in its second argument with partial derivative map $\partial_y \D$, has a convex-concave decomposition
+\begin{align}\label{eq:loss}
+    \D(x,y) = \D^{\text{vex}}(x, y) + \D^{\text{cave}}(x, y)
+\end{align}
+with respect to $y$,
+and satisfies the decomposability property 
+\begin{align}\label{eq:prop}
+    \partial_{y} \D^{\text{vex}}(x, \lambda y) \!+\! \partial_{y}\D^{\text{cave}}(x, y)\!=\! c(\lambda)[g(\lambda) b(x, y) \!-\! a(x, y)]
+\end{align}
+for $\lambda>0$, $a(x,y)$, $b(x,y)$, and $g(\lambda)$, where $g:\mathbb{R}^+\to\mathbb{R}$ is invertible onto its image.
+Then $\D(\Ytensor,\Yhattensor)$ is non-increasing under the multiplicative update
+\begin{align}\label{eq:explicit-update}
+\Tms{\ell} \leftarrow \max\left(\epsilon, \Tms{\ell} \odot g^{-1}\!\left(
+\frac{\sum_{\obs{\mathbf{i}}} [\nabla_{\Tms{\ell}}\mui] a(\yi,\mui)}
+{\sum_{\obs{\mathbf{i}}} [\nabla_{\Tms{\ell}}\mui] b(\yi,\mui)}
+\right)\right),
+\end{align}
+provided that the argument of $g^{-1}$ in~\eqref{eq:explicit-update} lies in $\mathrm{Range}(g)$.
+\end{theorem}
+A quick evaluation of~\eqref{eq:prop} shows that many loss functions possess the decomposability property, including the $(\alpha,\beta)$-divergence~\citep{cichocki2010families}, which includes the squared Euclidean distance, KL divergence, reverse KL divergence, Itakura–Saito divergence, $\alpha$-divergence, $\beta$-divergence~\citep{basu1998robust}, squared Hellinger distance, Pearson and Neyman $\chi^2$ divergences as special cases. As such, our work unifies and extends much existing work; we elaborate on these connections in~\Cref{sec: related-work}. Beyond these, the Bernoulli, binomial, negative binomial, and geometric distributions all have negative log-likelihoods which satisfy this form of decomposability under specific reparameterizations outlined in Appendix~\ref{sec:apx-alg}. ~\looseness=-1 
+
+We defer proof of monotonicity to~\Cref{sec:theory} and instead focus on the computation of~\eqref{eq:explicit-update}. We can compute $\Yhattensor$ using the einsum expression~\eqref{eq:einstr}. The loss-dependent functions $b(x,y), a(x,y)$ and $g^{-1}(x)$ are often remarkably simple and cheap to compute. For example, the least-squares loss yields $b(x,y) = x$, $a(x,y) = y$, and $g(x) = x$. ~\looseness=-1
+
+ Crucially, the numerator and denominator of~\eqref{eq:explicit-update} are \textit{also} neatly expressible using einsum. Consider the numerator ${\sum_{\obs{\mathbf{i}}} [\nabla_{\Tms{\ell}}\mui] a(\yi,\mui)}$. $\nabla_{\Theta} \mui$ has element-wise form 
+\begin{align}\label{eq:partial}
+\frac{\partial \mui}{\partial \theta_{\bi_{\obs{\ell}}, \br_{\lat{\ell}}}} = \sum_{\br}\mathbf{1}(\bi_{\obs{\ell}} \subseteq \bi, \br_{\lat{\ell}} \subseteq \br)\prod_{\ell'\neq \ell} \theta_{\obs{\bi_{\ell'}}, \lat{\br_{\ell'}}}^{\ms{(\ell')}},
+\end{align}
+yielding the expression
+\begin{align}
+    \sum_{\bi, \br} a(\yi, \mui) \mathbf{1}(\bi_{\obs{\ell}} \subseteq \bi, \br_{\lat{\ell}} \subseteq \br)\prod_{\ell'\neq \ell} \theta_{\obs{\bi_{\ell'}}, \lat{\br_{\ell'}}}^{\ms{(\ell')}}\label{eq:num}.
+\end{align} 
+ This is an einsum with string $\texttt{einstr}_\ell$, defined as: 
+ \begin{align}
+     \texttt{einstr}_\ell := {\obs{\bi_1}\lat{\br_1}, \dots, \obs{\bi_{\ell-1}} \lat{\br_{\ell-1}}, \obs{\bi}, \obs{\bi_{\ell+1}} \lat{\br_{\ell+1}},
+    \dots, \obs{\bi_{L}} \lat{\br_{L}} \rightarrow  {\obs{\bi_{\ell}} \lat{\br_{\ell}}}}.
+ \end{align}
+In particular, \eqref{eq:num} is exactly expressed as
+\begin{align}
+     \sum_{\obs{\mathbf{i}}} &[\nabla_{\Tms{\ell}}\mui] a(\yi, \mui) = \texttt{einsum}(\texttt{einstr}_{\ell}, \Theta^{\ms{(1)}}, \dots, \Theta^{\ms{(\ell-1)}}, a(\Ytensor, \Yhattensor) , \Theta^{\ms{(\ell+1)}}, \dots, \Theta^{\ms{(L)}}). 
+\end{align}
+The denominator is nearly identical, except that $b(\Ytensor, \Yhattensor)$ replaces $a(\Ytensor, \Yhattensor)$ (where $a$ and $b$ are applied element-wise). To create $\texttt{einstr}_\ell$, we implement $\texttt{swap}(\texttt{model\_str}, \ell)$ which swaps the model output $\obs{\mathbf{i}}$ with the $\ell^{\text{th}}$ entry $\bi_{\obs{\ell}} \br_{\lat{\ell}}$.
+ The full iterative algorithm is given in~\Cref{alg:mu}, which applies update~\eqref{eq:explicit-update} to each $\Tms{\ell}$ until convergence.~\looseness=-1
+
+ \begin{algorithm}[!h]
+\caption{NNEinFact: multiplicative update algorithm}
+\label{alg:mu}
+\begin{algorithmic}[1]
+\REQUIRE data $\Ytensor$, model string \texttt{model\_str},
+initial parameters $\{\Theta^{\ms{(1)}}, \dots, \Theta^{\ms{(L)}}\}$,
+loss function $\D$, numerical precision parameter $\epsilon > 0$
+\FOR{$\ell = 1, \dots, L$}
+    \STATE $\texttt{einstr}_\ell \gets \texttt{swap}(\texttt{model\_str}, \ell)$
+\ENDFOR
+
+\WHILE{not converged}
+    \FOR{$\ell = 1, \dots, L$}
+        \STATE $\Yhattensor \gets
+        \texttt{einsum}(\texttt{model\_str},
+        \{\Theta^{\ms{(\ell)}}\}_{\ell=1}^L)$
+
+        \STATE $\texttt{A} \gets
+        \texttt{einsum}(\texttt{einstr}_{\ell}, \Theta^{\ms{(1)}}, \dots, \Theta^{\ms{(\ell-1)}}, a(\Ytensor, \Yhattensor) , \Theta^{\ms{(\ell+1)}}, \dots, \Theta^{\ms{(L)}})$
+
+        \STATE $\texttt{B} \gets
+        \texttt{einsum}(\texttt{einstr}_{\ell}, \Theta^{\ms{(1)}}, \dots, \Theta^{\ms{(\ell-1)}}, b(\Ytensor, \Yhattensor) , \Theta^{\ms{(\ell+1)}}, \dots, \Theta^{\ms{(L)}})$
+
+        \STATE $\Theta^{\ms{(\ell)}} \gets \max(\epsilon, 
+        \Theta^{\ms{(\ell)}} \odot
+        g^{-1}\!\left(\frac{\texttt{A}}{\texttt{B}}\right))$
+    \ENDFOR
+\ENDWHILE \\ 
+\textbf{return} $\{\Theta^{\ms{(1)}}, \dots, \Theta^{\ms{(L)}}\}$
+\end{algorithmic}
+\end{algorithm}
+
+
+ 

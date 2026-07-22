@@ -1,0 +1,48 @@
+We use a majorization-minimization (MM) framework to establish \Cref{alg:mu}'s convergence to a stationary point of the loss $\D$. Given a function to minimize ($\D$), MM offers a principled approach to optimization by iteratively constructing tight upper bounds, or surrogate functions, $\Q$, that \textit{majorize} $\D$ and minimizing them. Iteratively majorizing and minimizing yields a convergent algorithm that monotonically decreases $\D$. ~\looseness=-1
+
+Formally, the function $\Q:\text{dom}(\Theta) \times \text{dom}(\Theta) \to \mathbb{R}_{\geq 0}$ is a \textit{surrogate function} to $\D$ iff for all $\Tms{\ell}, \widetilde \Theta^{\ms{({\ell})}}\in \text{dom}(\Theta)$,
+\begin{align}\label{eq:surrogate}
+\Q(\Tms{\ell} \mid \widetilde \Theta^{\ms{({\ell})}}) \geq \D(\Tms{\ell}) = \Q(\Tms{\ell} \mid \Tms{\ell}).
+\end{align}  The surrogate property ensures that at each step, minimizing $\Q$ decreases $\D$. By decomposing $\D$ into convex and concave components as in~\eqref{eq:loss} and upper bounding each component individually, we construct a surrogate function to $\D$. The exact form of $\Q$ is given in Lemma~\ref{lem:surrogate}.~\looseness=-1
+\begin{lemma} \label{lem:surrogate}
+Consider the differentiable convex-concave decomposition of $\D(x , y)$ in \eqref{eq:loss} and define $\tilde y_{\bi, \lat{\br_{\ell}}} = \sum_{\br \ms{\setminus} \lat{\br_{\ell}}} \tilde y_{\bi, \br}$ as the sum over latent indices $\lat{r_k} \not \in \lat{\br_{\ell}}$. It holds that $\sum_{\lat{\br_{\ell}}} \tilde y_{\bi, \lat{\br_{\ell}}} = \tilde y_{\bi}$. The function~\looseness=-1
+\begin{align}
+    \Q&(\Tms{\ell} \mid \widetilde \Theta^{\ms{(\ell)}}) =   \sum_{\bi, \br_{\lat{\ell}}} \frac{\tilde y_{\bi, \br_{\lat{\ell}}}}{\tilde y_{\bi}} \D^{\text{vex}}\left(y_{\bi} , \tilde y_{\bi}\tfrac{\theta_{\bi_{\obs{\ell}},\br_{\lat{\ell}}}^{\ms{(\ell)}}}{\tpil}\right) 
++ \sum_{\bi} \D^{\text{cave}}(y_{\bi} , \tilde y_{\bi}) + \partial_y  \D^{\text{cave}}(y_{\bi} , \tilde y_{\bi}) (\hat y_{\bi} - \tilde y_{\bi}) 
+\end{align}
+is a surrogate function to $\D(\Tms{\ell})$. 
+\end{lemma}
+We prove this result in Appendix~\ref{sec:apx}. Moreover, $\Q$ is easily minimized: Lemma~\ref{lem:convex} 
+establishes that it attains a minimum under the multiplicative update 
+in~\eqref{eq:explicit-update} applied to $\tilde{\Theta}^{(\ell)}$.~\looseness=-1 
+
+\begin{lemma}\label{lem:convex}
+    $\Q(\Tms{\ell} \mid \widetilde \Theta^{\ms{(\ell)}})$ is convex in $\Tms{\ell}$. If prop.~(\ref{eq:prop}) holds, then $\Q(\Tms{\ell} \mid \widetilde \Theta^{\ms{(\ell)}})$ is minimized by~\looseness=-1
+\begin{equation}
+    \Tms{\ell} = \max\left(\epsilon, \widetilde \Theta^{\ms{(\ell)}} \odot 
+            g^{-1}\left( 
+\frac{\sum_{\obs{\mathbf{i}}} [\nabla_{\Tms{\ell}}\mui] a(\yi, \tilde y_{\obs{\mathbf{i}}})}{\sum_{\obs{\mathbf{i}}} [\nabla_{\Tms{\ell}}\mui] b(\yi, \tilde y_{\obs{\mathbf{i}}})}
+            \right)\right)
+\end{equation}
+where $g^{-1}$ and $/$ are applied element-wise. 
+\end{lemma}
+See Appendix~\ref{sec:apx} for the proof. This result matches the einsum-based multiplicative update of~\eqref{eq:explicit-update}. Thus, we may establish~\Cref{alg:mu}'s convergence.~\looseness=-1
+
+
+\begin{theorem}\label{thm:alg}
+    If prop. (\ref{eq:prop}) holds, then the iterative process in~\Cref{alg:mu} converges. Every limit point of~\Cref{alg:mu} is a stationary point of objective~\ref{eq:obj}.
+\end{theorem}
+\begin{proof}
+\Cref{alg:mu} iterates over $\ell \in [L]$, setting 
+\begin{align}
+\Tms{\ell} \leftarrow \arg\min_{\Theta} \Q(\Theta  , \widetilde{\Theta}^{\ms{(\ell)}}).
+\end{align}
+At each iteration, 
+\begin{align}
+    \D(\tilde \Theta^{\ms{(\ell)}}) &= \Q(\tilde \Theta^{\ms{(\ell)}} \mid \tilde \Theta^{\ms{(\ell)}}) \underset{(1)}{\geq} 
+    \Q(\Tms{\ell} \mid \tilde \Theta^{\ms{(\ell)}}) 
+    \underset{(2)}{\geq} \Q(\Tms{\ell} \mid \Theta^{\ms{(\ell)}})=\D(\Theta^{\ms{(\ell)}}) \geq 0.\nonumber
+\end{align}
+Inequality (1) follows from the minimization of $\Q$ and inequality (2) follows from the surrogate property~\eqref{eq:surrogate}. Monotonicity and boundedness imply convergence of the objective values. In Appendix~\ref{sec:apx} we show that the limit points are stationary points of objective~\ref{eq:obj}. ~\looseness=-1 
+\end{proof}
+MM provides a powerful framework for establishing monotonicity and convergence; we are not the first to use it. The expectation-maximization~\citep{dempster1977maximum}, iteratively reweighted least-squares~\citep{holland1977robust}, and nonnegative matrix factorization algorithms~\citep{lee2000algorithms} are all special instances of MM.~\looseness=-1

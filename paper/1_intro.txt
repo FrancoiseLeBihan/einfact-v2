@@ -1,0 +1,29 @@
+Matrix and tensor factorization models serve as fundamental tools for extracting latent structure from high-dimensional multi-way data~\citep{kolda_tensor_2009, cichocki_tensor_2015}. These techniques impose structural constraints—such as low-rank factorizations or sparsity—to compress complex datasets while preserving their essential characteristics. Nonnegative variants of these factorizations~\citep{cichocki2009nonnegative, chi2012tensors} have proven particularly valuable in scientific applications due to their interpretable, parts-based representations, leading to routine use for exploratory and descriptive data analysis.~\looseness=-1 
+
+
+A researcher's choice of factorization model crucially impacts interpretability, ability to recover underlying latent structure, and fit to the data~\citep{kim_nonnegative_2007, kolda_tensor_2009}. Yet scientists face a critical gap: tailored factorizations—essential for capturing domain-specific structure—remain inaccessible to most researchers lacking considerable technical skills. Beyond a handful of algorithms with mature implementations, inference algorithms are typically tailored to individual models, implemented from scratch, scale poorly to large datasets, or require substantial implementation effort and programming ability. General methods based on automatic differentiation typically don't work well in practice, suffering from slow convergence, sensitivity to hyperparameter selection, among other problems~\citep{shalev2017failures}, making it difficult and time-consuming to explore novel models. ~\looseness=-1 
+
+
+\begin{figure*}[!t]
+    \centering
+\includegraphics[width=\linewidth]{figs/schematic.pdf}
+    \caption{\textbf{Schematic diagram highlighting NNEinFact's simplicity and generality.} Top left: running NNEinFact requires very few lines of code. Bottom left: an example custom tensor decomposition model. The top right panel provides a non-exhaustive list of examples of models that NNEinFact can fit; the bottom right panel provides a non-exhaustive list of loss functions that NNEinFact accommodates. }
+    \label{fig:scheme}
+\end{figure*}
+
+This paper develops NNEinFact, a method designed to bridge this gap. Centering the einsum operation, the computational backbone of numerous modern machine learning models~\citep{paszke2019pytorch, harris2020array, peharz2020einsum}, NNEinFact fits a wide family of nonnegative tensor factorizations under a general set of loss functions and is remarkably easy to use; see~\Cref{fig:scheme}.~\looseness=-1 
+
+\textbf{Contributions.} The rest of this paper introduces NNEinFact as a general tool for tailored nonnegative tensor factorization. We make the following contributions: 
+\begin{enumerate}
+\item \textbf{NNEinFact.} A simple, general-purpose nonnegative tensor factorization method built around three calls to the einsum operation that fits a wide family of models under a general set of loss functions.
+
+\item \textbf{Flexible modeling.} Switching between loss functions involves changing one of two parameters, and specifying a tailored tensor decomposition model is done with a string --- allowing the user to efficiently build, fit and refine models~\citep{box1976science, blei2014build}. 
+\newpage
+\item \textbf{Theoretical guarantees.} We use a majorization-minimization framework to prove NNEinFact's convergence to a stationary point of the objective.
+
+\item \textbf{Empirical performance.} NNEinFact quickly estimates custom tensor decompositions, outperforming gradient-based automatic differentiation (the only practical alternative for estimating such models). These custom models attain substantially lower heldout loss than more common modeling choices.
+
+\item \textbf{Interpretable representations.} In a rideshare pickup case study, we show how NNEinFact efficiently extracts interpretable spatiotemporal structure.
+\end{enumerate}
+
+Together, these contributions offer a fresh perspective on modern nonnegative tensor factorization, serving as a foundation for future research in scalable, interpretable, and statistically principled scientific modeling.~\looseness=-1 

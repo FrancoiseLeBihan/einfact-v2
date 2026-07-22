@@ -1,0 +1,26 @@
+An extensive literature develops algorithms tailored to specific nonnegative 
+tensor decompositions and loss functions. Mature implementations exist for CP 
+and Tucker~\citep{kim_nonnegative_2007, kim2008nonnegative, phan2008multi, 
+cichocki2009nonnegative, phan2011extended, chi2012tensors, zhou2015efficient}, 
+with the MATLAB Tensor Toolbox~\citep{bader2006algorithm}, Python's Tensorly 
+library~\citep{kossaifi2019tensorly}, and R's nnTensor package~\citep{tsuyuzaki2023nntensor} providing accessible open-source code. These libraries exclusively implement CP and Tucker. Alternative factorizations require either developing specialized 
+algorithms for each model or relying on generic optimization methods that suffer 
+from slow convergence and hyperparameter sensitivity~\citep{bengio2017deep, shalev2017failures}, creating a significant barrier to exploring domain-specific tensor models.~\looseness=-1
+
+Researchers have begun to exploit the general form of~\eqref{eq:contraction_structure} to develop flexible tensor decomposition methods. \citet{yilmaz2010probabilistic} introduce~\eqref{eq:contraction_structure} as \textit{probabilistic latent tensor factorization} and derive multiplicative updates for the Euclidean distance. \citet{yilmaz2011generalised} extended this framework to \textit{generalized tensor factorization} under the $\beta$-divergence family, 
+deriving heuristic multiplicative updates based on the connection between 
+exponential families and Bregman divergences. However, their updates lack formal 
+convergence guarantees—they do not prove monotonic descent or convergence to 
+a stationary point. Their approach is limited to $\beta$-divergence and lacks a scalable or accessible implementation. NNEinFact
+advances this work by: (i) providing a rigorous majorization-minimization-based 
+proof of monotonicity and convergence, (ii) introducing the decomposability framework~\eqref{eq:prop} that vastly expands the family of applicable loss functions, and (iii) centering the einsum function as a general and easily accessible tool amenable to GPU acceleration. ~\looseness=-1
+
+Recent work develops tensor methods for \textit{discrete density estimation} under 
+particular loss functions. \citet{ghalamkari20242} provides an $\alpha$-divergence minimization framework for mixtures of CP, Tucker, and tensor-train. 
+\citet{ghalamkari2025non} view normalized nonnegative tensors as discrete 
+distributions and minimize KL divergence for decompositions under~\eqref{eq:contraction_structure}, deriving specific algorithms for CP, Tucker, and tensor-train. While more general, these approaches still develop specialized algorithms for particular model-loss combinations.~\looseness=-1 
+
+Beyond squared Euclidean distance and KL divergence, various f-divergences and Bregman 
+divergences~\citep{renyi1961measures, bregman1967relaxation} have been shown to handle sparse and noisy tensor data well. The $\alpha$-divergence (an f-divergence) 
+and $\beta$-divergence (a Bregman divergence) are robust to missing values, 
+outliers, and model misspecification. \citet{cichocki2007non} and \citet{fevotte2011algorithms} use the MM framework to develop multiplicative update algorithms for these divergences under NMF, CP and Tucker. Both divergences are special cases of the $(\alpha, \beta)$-divergence family, for which \citet{cichocki2011generalized} proposed multiplicative updates in the NMF setting. The decomposability property~\eqref{eq:prop} unifies and extends these prior results to arbitrary einsum factorizations and novel loss functions.~\looseness=-1

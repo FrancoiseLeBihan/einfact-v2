@@ -1,0 +1,416 @@
+
+
+\section{Proofs of Theoretical Results}  \label{sec:apx}
+
+\textbf{Proof of Lemma \ref{lem:surrogate}.}
+
+
+\textbf{Construction of the surrogate function $\Q$.}
+First we show $\Q(\widetilde \Theta \mid \widetilde \Theta) = \D(\widetilde \Theta)$. By definition,
+    \begin{align}
+        \Q(\widetilde \Theta \mid \widetilde \Theta) = &\sum_{\bi}  \sum_{\br_{\lat{\ell}}} \frac{\tilde y_{\bi, \br_{\lat{\ell}}}}{\tilde y_{\bi}} \D^{\text{vex}}(y_{\bi} , \tilde y_{\bi}\tfrac{\tpil}{\tpil})
+    +\D^{\text{cave}}(y_{\bi} , \tilde y_{\bi}) + \partial_y \left[\D^{\text{cave}}(y_{\bi} , \tilde y_{\bi})\right] \underbrace{(\tilde y_{\bi} - \tilde y_{\bi})}_{0}\\
+    &= \sum_{\bi} \D^{\text{vex}}(y_{\bi} , \tilde y_{\bi})\underbrace{\sum_{\br_{\lat{\ell}}} \frac{\tilde y_{\bi, \br_{\lat{\ell}}}}{\tilde y_{\bi}}}_{1} 
+    + \D^{\text{cave}}(y_{\bi} , \tilde y_{\bi})\\
+    &= \sum_{\bi} \D(y_{\bi} , \tilde y_{\bi}) = \D(\Ytensor , \widetilde{\Ytensor}) = \D(\widetilde \Theta).
+    \end{align}
+    We apply Jensen's inequality to bound the convex component and a first-order Taylor approximation to bound the concave component. 
+    
+    \textbf{Bounding the convex component.} Letting $\hat y_{\bi, \br} = \prod_{_\ell=1}^L \theta_{\bi_{\obs{\ell}}, \br_{\lat{\ell}}}$, we wish to show that 
+    \begin{align}
+    \D^{\text{vex}}(y_{\bi} , \hat y_{\bi}) \leq \sum_{\br_{\lat{\ell}}} \frac{\tilde y_{\bi, \br_{\lat{\ell}}}}{\tilde y_{\bi}} \D^{\text{vex}}(y_{\bi} , \tilde y_{\bi}\tfrac{\theta_{\bi_{\obs{\ell}},\br_{\lat{\ell}}}^{\ms{(\ell)}}}{\tpil}).
+\end{align}
+First, note that $\frac{\hat y_{\bi, \br_{\lat{\ell}}}}{\tilde y_{\bi, \br_{\lat{\ell}}}} = \frac{\theta_{\bi_{\obs{\ell}}, \br_{\lat{\ell}}}}{\tilde \theta_{\bi_{\obs{\ell}}, \br_{\lat{\ell}}}},$ and so we can write
+\begin{align}
+    \sum_{\br_{\lat{\ell}}} \frac{\tilde y_{\bi, \br_{\lat{\ell}}}}{\tilde y_{\bi}} \D^{\text{vex}}(y_{\bi} , \tilde y_{\bi}\tfrac{\theta_{\bi_{\obs{\ell}},\br_{\lat{\ell}}}^{\ms{(\ell)}}}{\tpil}) &= \sum_{\br_{\lat{\ell}}} \frac{\tilde y_{\bi, \br_{\lat{\ell}}}}{\tilde y_{\bi}} \D^{\text{vex}}(y_{\bi} , \tilde y_{\bi}\frac{\hat y_{\bi, \br_{\lat{\ell}}}}{\tilde y_{\bi, \br_{\lat{\ell}}}})\\
+    &= \sum_{\br_{\lat{\ell}}} \frac{\tilde y_{\bi, \br_{\lat{\ell}}}}{\tilde y_{\bi}} \D^{\text{vex}}(y_{\bi} , \hat y_{\bi, \br_{\lat{\ell}}}\frac{\tilde y_{\bi}}{\tilde y_{\bi, \br_{\lat{\ell}}}}).
+    \end{align}
+    Since $\sum_{\br_{\lat{\ell}}} \frac{\tilde y_{\bi, \br_{\lat{\ell}}}}{\tilde y_{\bi}} = \frac{\tilde y_{\bi}}{\tilde y_{\bi}}  = 1$, Jensen's inequality implies that 
+    \begin{align}
+    \sum_{\br_{\lat{\ell}}} \frac{\tilde y_{\bi, \br_{\lat{\ell}}}}{\tilde y_{\bi}} \D^{\text{vex}}(y_{\bi} , \hat y_{\bi, \br_{\lat{\ell}}}\frac{\tilde y_{\bi}}{\tilde y_{\bi, \br_{\lat{\ell}}}}) &\geq  \D^{\text{vex}}(y_{\bi} , \sum_{\br_{\lat{\ell}}} \frac{\tilde y_{\bi, \br_{\lat{\ell}}}}{\tilde y_{\bi}} \left(\hat y_{\bi, \br_{\lat{\ell}}}\frac{\tilde y_{\bi}}{\tilde y_{\bi, \br_{\lat{\ell}}}}\right))\\
+    &= \D^{\text{vex}}(y_{\bi} , \sum_{\br_{\lat{\ell}}} \hat y_{\bi, \br_{\lat{\ell}}})  \label{eq:jensen_vex}
+    = \D^{\text{vex}}(y_{\bi} ,  \mui)
+\end{align}
+where~\eqref{eq:jensen_vex} follows from Jensen's inequality.
+
+\textbf{Bounding the concave component.} For any concave function $f$, the first-order Taylor expansion of $f$ at $\widetilde \Theta$ yields the inequality $f(\Theta) \leq f(\widetilde \Theta) + \nabla f(\tilde \Theta)^\top (\Theta - \widetilde \Theta)$. We leverage this property of $\D^{\text{cave}}(y_{\bi} , \mui)$ to write 
+\begin{align}
+    \D^{\text{cave}}(y_{\bi} , \mui) \leq \D^{\text{cave}}(y_{\bi} , \tilde y_{\bi}) + \partial_y \D^{\text{cave}}(y_{\bi} , \tilde y_{\bi})(\hat y_{\bi} - \tilde y_{\bi}).
+\end{align}
+
+
+Putting these parts together,
+\begin{align}
+    \Q(\Theta \mid \widetilde \Theta) &=   \sum_{\bi}  \sum_{\br_{\lat{\ell}}} \frac{\tilde y_{\bi, \br_{\lat{\ell}}}}{\tilde y_{\bi}} \D^{\text{vex}}(y_{\bi} , \tilde y_{\bi}\tfrac{\theta_{\bi_{\obs{\ell}},\br_{\lat{\ell}}}^{\ms{(\ell)}}}{\tpil})
+    +\D^{\text{cave}}(y_{\bi} , \tilde y_{\bi}) + \partial_y \D^{\text{cave}}(y_{\bi} , \tilde y_{\bi}) (\hat y_{\bi} - \tilde y_{\bi}) \\
+    & \geq
+    \sum_{\bi}\D^{\text{vex}}(y_{\bi} , \mui) + 
+    \D^{\text{cave}}(y_{\bi} , \mui) \\
+    &= \sum_{\bi} \D(y_{\bi} , \mui) = \D(\Theta). 
+\end{align}
+
+\textbf{Proof of Lemma \ref{lem:convex}.}
+
+\textbf{Convexity of $\Q$.}
+The Taylor expansion term 
+\begin{align}
+\D^{\text{cave}}(y_{\bi} , \tilde y_{\bi}) + \partial_y \D^{\text{cave}}(y_{\bi} , \tilde y_{\bi}) (\hat y_{\bi} - \tilde y_{\bi})
+\end{align}
+is linear in $\Theta$ and is thus convex. Consider the term 
+\begin{align}
+    \sum_{\br_{\lat{\ell}}} \frac{\tilde y_{\bi, \br_{\lat{\ell}}}}{\tilde y_{\bi}} \D^{\text{vex}}(y_{\bi} , \tilde y_{\bi}\tfrac{\theta_{\bi_{\obs{\ell}},\br_{\lat{\ell}}}^{\ms{(\ell)}}}{\tpil}).
+    \end{align}
+It is a weighted sum of terms $\D^{\text{vex}}(y_{\bi} , \tilde y_{\bi}\tfrac{\theta_{\bi_{\obs{\ell}},\br_{\lat{\ell}}}^{\ms{(\ell)}}}{\tpil})$, each of which is convex in its second argument. Since affine transformations and nonnegative weighted sums of convex functions preserve convexity, this term is convex. 
+
+Again, since sums of convex terms are convex, it holds that $\Q$ is convex in $\Theta$.~\looseness=-1
+
+\textbf{Minimizing $\Q$.} $\Q(\Theta \mid \widetilde \Theta)$ is proportional in $\Theta$ to
+\begin{align}
+    \Q(\Theta \mid \widetilde \Theta) \propto_{\Theta} \sum_{\bi} \sum_{\br_{\lat{\ell}}} \frac{\tilde y_{\bi, \br_{\lat{\ell}}}}{\tilde y_{\bi}} \D^{\text{vex}}(y_{\bi} , \tilde y_{\bi}\tfrac{\theta_{\bi_{\obs{\ell}},\br_{\lat{\ell}}}^{\ms{(\ell)}}}{\tpil})
+     + \partial_y \D^{\text{cave}}(y_{\bi} , \tilde y_{\bi}) \hat y_{\bi}
+\end{align}
+with gradient given element-wise as 
+\begin{align}
+    \frac{\partial}{\partial \theta_{\bi_{\obs{\ell}}, \br_{\lat{\ell}}}}\left[\Q(\Theta \mid \widetilde \Theta)\right] &= \sum_{\bi} \frac{\tilde y_{\bi, \br_{\lat{\ell}}}}{\tilde y_{\bi}} \frac{\tilde y_{\bi}}{\tilde \theta_{\bi_{\obs{\ell}}, \br_{\lat{\ell}}}}\partial_y \D^{\text{vex}}(y_{\bi} , \tilde y_{\bi}\tfrac{\theta_{\bi_{\obs{\ell}},\br_{\lat{\ell}}}^{\ms{(\ell)}}}{\tpil})
+     + \partial_y \D^{\text{cave}}(y_{\bi} , \tilde y_{\bi}) \frac{\partial \mui}{\partial \theta_{\bi_{\obs{\ell}}, \br_{\lat{\ell}}}} \\
+     &= \sum_{\bi} \frac{\partial \mui}{\partial \theta_{\bi_{\obs{\ell}}, \br_{\lat{\ell}}}}\left(\partial_y \D^{\text{vex}}(y_{\bi} , \tilde y_{\bi}\tfrac{\theta_{\bi_{\obs{\ell}},\br_{\lat{\ell}}}^{\ms{(\ell)}}}{\tpil})
+     + \partial_y \D^{\text{cave}}(y_{\bi} , \tilde y_{\bi}) \right).\label{eq:q-grad}
+\end{align}
+Letting $\lambda = \tfrac{\theta_{\bi_{\obs{\ell}},\br_{\lat{\ell}}}^{\ms{(\ell)}}}{\tpil}$ and setting $\frac{\partial}{\partial \theta_{\bi_{\obs{\ell}}, \br_{\lat{\ell}}}}\Q(\Theta \mid \widetilde \Theta) = 0$, we have that
+\begin{align}
+    \sum_{\bi} \frac{\partial \mui}{\partial \theta_{\bi_{\obs{\ell}}, \br_{\lat{\ell}}}}\left(\partial_y \D^{\text{vex}}(y_{\bi} , \tilde y_{\bi}\lambda)
+     + \partial_y \D^{\text{cave}}(y_{\bi} , \tilde y_{\bi}) \right) &= 0.
+\end{align}
+Under the relation $\partial_y \D^{\text{vex}}(y_{\bi} , \tilde y_{\bi}\lambda)
+     + \partial_y \D^{\text{cave}}(y_{\bi} , \tilde y_{\bi}) = \left[c(\lambda) (g(\lambda) b(\yi,\mui) - a(\yi,\mui))\right]$
+\begin{align}
+    c(\lambda) g(\lambda) \sum_{\bi} \frac{\partial \mui}{\partial \theta_{\bi_{\obs{\ell}}, \br_{\lat{\ell}}}}  b(\yi,\mui) = c(\lambda) \sum_{\bi} \frac{\partial \mui}{\partial \theta_{\bi_{\obs{\ell}}, \br_{\lat{\ell}}}}a(\yi,\mui)
+\end{align}
+which implies that 
+\begin{align}
+    \lambda = \tfrac{\theta_{\bi_{\obs{\ell}},\br_{\lat{\ell}}}^{\ms{(\ell)}}}{\tpil} = g^{-1} \left(\frac{\sum_{\bi} \frac{\partial \mui}{\partial \theta_{\bi_{\obs{\ell}}, \br_{\lat{\ell}}}}a(\yi,\mui)}{\sum_{\bi} \frac{\partial \mui}{\partial \theta_{\bi_{\obs{\ell}}, \br_{\lat{\ell}}}}  b(\yi,\mui)}\right).
+\end{align}
+Multiplying both sides by $\tpil$ yields the multiplicative update. If the multiplicative update lies outside of $[\epsilon, \infty)$, the minimum is attained at $\theta_{\bi_{\obs{\ell}},\br_{\lat{\ell}}}^{\ms{(\ell)}} = \epsilon$ due to the convexity of $Q$. 
+
+\textbf{Proof of convergence to a stationary point.} We draw from the work of~\cite{razaviyayn2013unified}, Theorem 2, which establishes convergence to stationary points for a class of algorithms referred to as \textit{Block Successive Upper-bound Minimization Algorithms}. \Cref{alg:mu} is one of these.  In particular, 
+\begin{itemize}
+\item $Q$ is quasi-convex in $\Tms{\ell}$.
+\item $Q(\Tms{\ell} \mid \tilde \Theta^{\ms{(\ell)}})$ has a unique minimum in $\Tms{\ell}$. 
+\item $Q(\Tms{\ell} \mid \Tms{\ell}) = \D(\Tms{\ell})$ for all $\Tms{\ell} \geq \epsilon$. 
+\item $Q(\Tms{\ell} \mid \tilde\Theta^{\ms{(\ell)}}) \geq \D(\Tms{\ell})$ for all $\Tms{\ell}, \tilde \Theta^{\ms{(\ell)}} \geq \epsilon$.
+\item $\nabla_{\Tms{\ell}} Q(\Tms{\ell} \mid \tilde \Theta^{\ms{(\ell)}}) = \nabla_{\Tms{\ell}} \D(\Tms{\ell})$ at $\tilde \Theta^{\ms{(\ell)}} = \Tms{\ell}$ for all $\Tms{\ell} \geq \epsilon$. 
+\item $Q(\Tms{\ell'} \mid \tilde \Theta^{\ms{(\ell')}})$ is continuous in $\all$ for all $\Theta^{\ms{(\ell)}} \geq \epsilon, \ell \in [L]$.
+\end{itemize}
+The convexity of $Q(\Tms{\ell} \mid \tilde \Theta^{\ms{(\ell)}})$ in $\Tms{\ell}$ implies that $Q$ is quasi-convex~\citep{gillis2020nonnegative}. The closed-form expression for the minimum of $Q(\Tms{\ell} \mid \tilde \Theta^{\ms{(\ell)}})$ implies uniqueness, while the third and fourth statements are the surrogate property. A quick evaluation of \eqref{eq:q-grad} at $\tilde \Theta^{\ms{(\ell)}} = \Tms{\ell}$ implies tangency and the continuity of $Q$ follows from construction and the continuity of $\D$.~\looseness=-1 
+
+Since these statements hold, Theorem 2 of~\cite{razaviyayn2013unified} applies: every limit point is a stationary point of objective~\ref{eq:obj}.
+
+\newpage 
+
+\section{Algorithmic Details} \label{sec:apx-alg}
+All experiments were run on one GPU and all algorithms were implemented in Pytorch. 
+
+\textbf{Stopping criterion.} We use a variety of stopping criterion to evaluate convergence, including increasing validation loss for $5$ consecutive iterations, a decrease in the training loss of less than $10^{-6}$, or 5,000 iterations of training. 
+
+\subsection{Divergences}
+We implemented the $(\alpha, \beta)$-divergence~\citep{cichocki2010families} setting of~\Cref{alg:mu}, a family of divergences parameterized by $\alpha, \beta \in \mathbb{R}$. The $(\alpha, \beta)$-divergence is defined as 
+\begin{align}
+\D_{\alpha,\beta}(x,y)=
+\begin{cases}
+\displaystyle
+\tfrac{1}{\alpha\beta}\!\left[
+\tfrac{\alpha}{\alpha+\beta}x^{\alpha+\beta}
++ \tfrac{\beta}{\alpha+\beta}y^{\alpha+\beta}
+- x^\alpha y^\beta
+\right]
+& \alpha,\beta,\alpha+\beta\neq 0 \\[1.2em]
+\displaystyle
+\tfrac{1}{\alpha^2}\left[y^{\alpha} - x^\alpha + 
+\alpha{x^\alpha}\log\!\tfrac{x}{y}\right]
+& \beta=0,\ \alpha\neq 0 \\[1em]
+\displaystyle
+\tfrac{1}{\alpha^2}\left[\tfrac{x^\alpha}{y^{\alpha}}- 1 + \alpha \log \tfrac yx\right]
+& \alpha=-\beta\neq 0 \\[1em]
+\displaystyle
+\tfrac{1}{\beta^2}\left[\beta y^\beta \log \tfrac yx - y^\beta + x^\beta\right]
+& \alpha=0,\ \beta\neq 0 \\[1em]
+\displaystyle
+\tfrac12\left(\log x - \log y\right)^2
+& \alpha=\beta=0
+\end{cases}
+\end{align}
+Special cases include the $\alpha$-divergence~\citep{amari2007integration}, for $\alpha + \beta = 1$ and the $\beta$-divergence~\citep{basu1998robust} for $\alpha = 1$. Included are the KL divergence $(\alpha = 1$, $\beta = 0)$, reverse KL $(\alpha =0, \beta = 1)$, squared Euclidean distance $(\alpha = 1, \beta = 1)$, Itakura-Saito divergence $(\alpha =1, \beta = -1)$, as well as the 
+squared Hellinger distance $(\alpha = \beta = 0.5)$, Neyman $\chi^2$ $(\alpha=-1, \beta=2)$ and Pearson $\chi^2$ divergences $(\alpha = 2, \beta = -1)$. 
+
+When $\alpha \neq 0$, $a(x,y) = x^{\alpha}y^{\beta-1}$ and $b(x,y) = y^{\alpha + \beta - 1}$. When $\alpha = 0$, $\beta = 1$, $a(x,y) = \log(x/y)$ and $b(x,y) = 1$. Otherwise, when $\alpha = 0$ and $\beta \neq 1$, we could not derive a decomposition satisfying the property~\eqref{eq:prop}.~\looseness=-1 
+
+Under the $(\alpha,\beta)$-divergence, $g(\lambda)$ is defined by:
+\begin{align}g(\lambda) = 
+    \begin{cases}
+         \lambda^{1 - \beta} & 1/\alpha - \beta/\alpha > 1 \\
+         \lambda^{\alpha + \beta -1} & 1 / \alpha - \beta/ \alpha<0 \\
+         \log(\lambda) & \alpha = 0, \beta = 1\\
+         \lambda^\alpha & 0 \leq 1/\alpha - \beta/\alpha \leq 1
+    \end{cases}
+\end{align}
+
+\textbf{Maximum likelihood under the negative binomial.} The negative binomial random variable $X$ with mean $y$ and dispersion parameter $\phi$ has probability mass function
+\begin{align}
+    p(x \mid y, \phi) = \frac{\Gamma(x + \phi)}{\Gamma(\phi) \Gamma(x + 1)}\left(\frac{\phi}{\phi + y}\right)^{\phi}\left(\frac{y}{\phi + y}\right)^{x}.
+\end{align}
+The terms in the negative log-likelihood proportional to $y$ are given by
+\begin{align}
+    \D(x,y) = (\phi + x) \log(\phi + y) - x \log(y),
+\end{align}
+which decomposes into convex and concave parts
+\begin{align}
+    \D^{\text{vex}}(x,y) = - x \log(y), \quad \D^{\text{cave}}(x,y) = (\phi + x) \log( \phi + y).
+\end{align}
+Then 
+\begin{align}
+\partial_y \D^{\text{vex}}(x, \lambda y) + \partial_y \D^{\text{cave}}(x,y) &= 
+    - \lambda^{-1}\frac{x}{y} + \frac{\phi + x}{\phi + y}\\
+    &= \lambda^{-1} \left(\lambda \frac{\phi + x}{\phi + y} - \frac{x}{y}\right).
+\end{align}
+Here, $c(\lambda) = \lambda^{-1}$, $g(\lambda) = \lambda$, $a(x,y) = \frac{x}{y}$ and $b(x,y) = \frac{\phi + x}{\phi + y}$. Under the negative binomial likelihood, where each ${\yi \sim \text{NegBinom}(\mui, \phi_{\obs{\mathbf{i}}})}$. Then for fixed $\phi_{\obs{\mathbf{i}}}$, the multiplicative update that minimizes the negative log-likelihood is~\looseness=-1 
+\begin{align}
+    \Theta^{\ms{(\ell)}} \leftarrow \max \left(\epsilon, \Theta^{\ms{(\ell)}} \odot \left(\frac{\sum_{\obs{\mathbf{i}}} \left[\nabla_{\Theta^{\ms{(\ell)}}}\mui\right] \frac{\yi}{\mui}}{\sum_{\obs{\mathbf{i}}}\left[\nabla_{\Theta^{\ms{(\ell)}}}\mui\right] \frac{\yi + \phi_{\obs{\mathbf{i}}}}{\mui + \phi_{\obs{\mathbf{i}}}}}\right)\right).
+\end{align}
+The geometric distribution arises when $\phi = 1$. 
+
+\textbf{Maximum likelihood under the Bernoulli.} The Bernoulli random variable $X \sim \text{Bern}(p)$ has probability mass function 
+\begin{align}
+    p(x \mid p) = p^{x}(1-p)^{1-x}
+\end{align}
+for $x \in \{0,1\}$. Reparameterizing using the odds ratio $\mu := \frac{p}{1-p}$, the negative log likelihood simplifies to 
+\begin{align}
+    \D(x, \mu) = \log(1 + \mu) - x \log(\mu)
+\end{align}
+which decomposes into convex and concave parts
+\begin{align}
+    \D^{\text{vex}}(x,\mu) = - x \log(\mu), \quad \D^{\text{cave}}(x,\mu) =  \log( 1 + \mu).
+\end{align}
+Then 
+\begin{align}
+\partial_y \D^{\text{vex}}(x, \lambda y) + \partial_y \D^{\text{cave}}(x,y) &= 
+    - \lambda^{-1}\frac{x}{y} + \frac{1}{1 + y}\\
+    &= \lambda^{-1} \left(\lambda \frac{1}{1 + y} - \frac{x}{y}\right).
+\end{align}
+Here, $c(\lambda) = \lambda^{-1}$, $g(\lambda) = \lambda$, $a(x,y) = \frac{x}{y}$ and $b(x,y) = \frac{1}{1 + y}$. Under odds estimation using \Cref{eq:contraction_structure}, the multiplicative update that minimizes the negative log-likelihood is 
+\begin{align}
+    \Theta^{\ms{(\ell)}} \leftarrow \max \left(\epsilon, \Theta^{\ms{(\ell)}} \odot \left(\frac{\sum_{\obs{\mathbf{i}}} \left[\nabla_{\Theta^{\ms{(\ell)}}}\mui\right] \frac{\yi}{\mui}}{\sum_{\obs{\mathbf{i}}}\left[\nabla_{\Theta^{\ms{(\ell)}}}\mui\right] \frac{1}{\mui + 1}}\right)\right).
+\end{align}
+This framework extends to the binomial setting where $\yi \sim \text{Binomial}(n_{\obs{\mathbf{i}}}, p_{\obs{\mathbf{i}}})$. For known number of trials $n_{\obs{\mathbf{i}}}$, the corresponding update is 
+\begin{align}
+    \Theta^{\ms{(\ell)}} \leftarrow \max \left(\epsilon, \Theta^{\ms{(\ell)}} \odot \left(\frac{\sum_{\obs{\mathbf{i}}} \left[\nabla_{\Theta^{\ms{(\ell)}}}\mui\right] \frac{\yi}{\mui}}{\sum_{\obs{\mathbf{i}}}\left[\nabla_{\Theta^{\ms{(\ell)}}}\mui\right] \frac{n_{\obs{\mathbf{i}}}}{\mui + 1}}\right)\right).
+\end{align}
+In each of these settings, $\mui$ is the estimated odds $\mui := \frac{\hat p_{\obs{\mathbf{i}}}}{1- \hat p_{\obs{\mathbf{i}}}}$.
+
+\textbf{Jensen-Shannon divergence. } The Jensen-Shannon divergence is defined as 
+\begin{align}
+    \D(x,y) &= \tfrac{1}{2} x [\log(x) - \log(\tfrac{x+y}{2})] + \tfrac{1}{2}y[\log(y) - \log(\tfrac{x+y}{2})]\\
+    &= - \tfrac{x+y}{2} \log(\tfrac{x+y}{2}) + \tfrac{1}{2} [x \log(x) + y \log(y)].
+\end{align}
+It has convex-concave decomposition
+\begin{align}
+    \D^{\text{vex}}(x,y) = \tfrac{1}{2} [x \log(x) + y \log(y)], \quad \D^{\text{cave}}(x,y) = - \tfrac{x+y}{2} \log(\tfrac{x+y}{2}).
+\end{align}
+Then 
+\begin{align}
+    \partial_y \D^{\text{vex}}(x,\lambda y) + \partial_y \D^{\text{cave}}(x,y) &= \tfrac{1}{2}(1 + \log(\lambda) + \log(y) - \log(\tfrac{x+y}{2}) - 1)\\
+    &= \tfrac{1}{2}[\log(\lambda) - \log(\tfrac{x+y}{2y})].
+\end{align}
+Then $a(x,y) = \log(\frac{x+y}{2y})$, $b(x,y) = 1$, $g(\lambda) = \log(\lambda)$, and $c(\lambda) = \frac{1}{2}$. The multiplicative update is 
+\begin{align}
+      \Theta^{\ms{(\ell)}} \leftarrow \max \left(\epsilon, \Theta^{\ms{(\ell)}} \odot \exp\left(\frac{\sum_{\obs{\mathbf{i}}} \left[\nabla_{\Theta^{\ms{(\ell)}}}\mui\right] \log(\frac{\yi+\mui}{2 \mui})}{\sum_{\obs{\mathbf{i}}}\left[\nabla_{\Theta^{\ms{(\ell)}}}\mui\right]}\right)\right).
+\end{align}
+
+\newpage 
+
+\section{Additional Empirical Results}\label{sec:apx_results}
+\textbf{Uber qualitative comparison. } For comparison, we fit the CP decomposition with $\lat{R}\!=\!10$ classes to the Uber data. On the left, we show the classes recovered by the custom model corresponding to ``weekday morning rush hour", ``weekday evening rush hour", ``weekend night life" in~\Cref{fig:qual}. To the right, we show their most closely resembled classes recovered by CP.
+\begin{figure}[!h]
+    \centering
+\includegraphics[width=\linewidth]{figs/q_cp.pdf}
+    \caption{Qualitative side-by-side comparison of the custom (left) and CP (right) models. }
+    \label{fig:apx_qual}
+\end{figure}
+
+Not only does the custom model capture more complex spatial structure, the temporal structure is much more refined.
+
+
+\begin{table}[]
+\caption{Mean heldout $(\alpha, \beta)$-divergence for all models. We report the best values over different numbers of parameters. Lowest values in each row are bolded. Standard errors are shown in parentheses below each row. }
+\label{tab:model}
+    \centering
+    \scriptsize
+    \begin{tabular}{ccccccccc}
+    \hline
+       Dataset & $\alpha$ & Custom & CP/PARAFAC & Tensor-train & Tucker & LR Tucker & Tucker (cubic) & LR Tucker (cubic) \\
+       \hline
+Uber & 0.8 & \textbf{0.00804} & 0.00812 & 0.00823 & 0.00986 & 0.00823 & 0.00925 & 0.00828 \\
+      &      & {\scriptsize (0.00002)} & {\scriptsize (0.00002)} & {\scriptsize (0.00002)} & {\scriptsize (0.00004)} & {\scriptsize (0.00002)} & {\scriptsize (0.00004)} & {\scriptsize (0.00002)} \\
+& 1.0 & \textbf{0.0101} & 0.0104 & 0.0107 & 0.0149 & 0.0107 & 0.0123 & 0.0108 \\
+      &      & {\scriptsize (0.00003)} & {\scriptsize (0.00002)} & {\scriptsize (0.00004)} & {\scriptsize (0.00006)} & {\scriptsize (0.00003)} & {\scriptsize (0.00006)} & {\scriptsize (0.00007)} \\
+ & 1.2 & \textbf{0.0152} & 0.0158 & 0.0169 & 0.0291 & 0.0160 & 0.0197 & 0.0164 \\
+      &      & {\scriptsize (0.00007)} & {\scriptsize (0.00013)} & {\scriptsize (0.00010)} & {\scriptsize (0.00016)} & {\scriptsize (0.00012)} & {\scriptsize (0.00015)} & {\scriptsize (0.00011)} \\
+
+
+        \hline
+ICEWS & 0.8 & 0.0203 & \textbf{0.0201} & 0.0226 & 0.0234 & 0.0212 & 0.0243 & 0.0354 \\
+      &      & {\scriptsize (0.00003)} & {\scriptsize (0.00001)} & {\scriptsize (0.00002)} & {\scriptsize (0.00006)} & {\scriptsize (0.00002)} & {\scriptsize (0.00004)} & {\scriptsize (0.00005)} \\
+ & 1.0 & \textbf{0.0273} & 0.0285 & 0.0331 & 0.0342 & 0.0291 & 0.0356 & 0.0301 \\
+      &      & {\scriptsize (0.00012)} & {\scriptsize (0.00004)} & {\scriptsize (0.00012)} & {\scriptsize (0.00013)} & {\scriptsize (0.00005)} & {\scriptsize (0.00006)} & {\scriptsize (0.00031)} \\
+
+ & 1.2 & \textbf{0.0457} & 0.0470 & 0.0560 & 0.0557 & 0.0595 & 0.0515 & 0.0515 \\
+      &      & {\scriptsize (0.0001)} & {\scriptsize (0.0001)} & {\scriptsize (0.001)} & {\scriptsize (0.0002)} & {\scriptsize (0.004)} & {\scriptsize (0.0004)} & {\scriptsize (0.002)} \\
+
+
+\hline
+WITS & 0.8 & \textbf{0.166} & 0.234 & 0.361 & 0.269 & 0.313 & 0.246 & 0.297 \\
+     &     & {\scriptsize (0.004)} & {\scriptsize (0.018)} & {\scriptsize (0.038)} & {\scriptsize (0.031)} & {\scriptsize (0.032)} & {\scriptsize (0.008)} & {\scriptsize (0.023)} \\
+ & 1.0 & \textbf{0.0356} & 0.0570 & 0.0780 & 0.0782 & 0.0742 & 0.0673 & 0.0739 \\
+     &     & {\scriptsize (0.002)} & {\scriptsize (0.005)} & {\scriptsize (0.011)} & {\scriptsize (0.012)} & {\scriptsize (0.011)} & {\scriptsize (0.007)} & {\scriptsize (0.005)} \\
+ & 1.2 & \textbf{0.0134} & 0.0178 & 0.0294 & 0.0280 & 0.0293 & 0.0300 & 0.0246 \\
+     &     & {\scriptsize (0.0009)} & {\scriptsize (0.002)} & {\scriptsize (0.003)} & {\scriptsize (0.002)} & {\scriptsize (0.002)} & {\scriptsize (0.0003)} & {\scriptsize (0.004)} \\
+        \hline
+    \end{tabular}
+\end{table}
+
+\begin{table}[]
+\caption{Mean heldout $(\alpha,\beta)$-divergences for NNEinFact and Adam. Lowest values in each row are bolded. Standard errors are shown in parentheses below each row. }\label{tab:auto}
+    \centering
+    \scriptsize
+    \begin{tabular}{ccccccccc}
+    \hline
+       Dataset & $(\alpha,\beta)$ & NNEinFact & Adam, 0.01 & Adam, 0.05 & Adam, 0.1  & Adam, 0.3  & Adam, 0.5  & Adam, 1.0\\
+       \hline
+Uber & (0.7, 0) & \textbf{0.00759} & 0.0161 & 0.0131 & 0.0115 & 0.0100 & 0.00973 & 0.0127 \\
+     &           & {\scriptsize (0.00001)} & {\scriptsize (0.0004)} & {\scriptsize (0.0005)} & {\scriptsize (0.0002)} & {\scriptsize (0.0001)} & {\scriptsize (0.0001)} & {\scriptsize (0.0016)} \\
+
+ & (0.7, 1) & \textbf{0.0444} & 0.1855 & 0.1695 & 0.1903 & 1.9391 & 1.9391 & 1.9412 \\
+     &           & {\scriptsize (0.0007)} & {\scriptsize (0.011)} & {\scriptsize (0.012)} & {\scriptsize (0.014)} & {\scriptsize (0.014)} & {\scriptsize (0.014)} & {\scriptsize (0.014)} \\
+
+ & (1.0, 0) & \textbf{0.0108} & 0.0229 & 0.0190 & 0.0164 & 0.0149 & 0.0151 & 0.0195 \\
+     &           & {\scriptsize (0.00003)} & {\scriptsize (0.0006)} & {\scriptsize (0.0004)} & {\scriptsize (0.0002)} & {\scriptsize (0.0004)} & {\scriptsize (0.0004)} & {\scriptsize (0.0006)} \\
+
+ & (1.0, 1) & \textbf{0.367} & 0.542 & 0.478 & 0.458 & 9.673 & 18.739 & 17.378 \\
+     &           & {\scriptsize (0.006)} & {\scriptsize (0.015)} & {\scriptsize (0.012)} & {\scriptsize (0.011)} & {\scriptsize (2)} & {\scriptsize (1.6)} & {\scriptsize (0.1)} \\
+
+ & (1.3, 0) & \textbf{0.0225} & 0.0538 & 0.0418 & 0.0349 & 0.0323 & 0.0295 & 0.0366 \\
+     &           & {\scriptsize (0.0001)} & {\scriptsize (0.001)} & {\scriptsize (0.002)} & {\scriptsize (0.001)} & {\scriptsize (0.001)} & {\scriptsize (0.0005)} & {\scriptsize (0.001)} \\
+
+ & (1.3, 1) & 1.032 & 0.939 & 0.917 & \textbf{0.896} & 34.099 & 40.061 & 42.121 \\
+     &           & {\scriptsize (0.06)} & {\scriptsize (0.03)} & {\scriptsize (0.03)} & {\scriptsize (0.02)} & {\scriptsize (3.7)} & {\scriptsize (0.9)} & {\scriptsize (0.4)} \\
+
+        \hline
+ICEWS & (0.7, 0) & \textbf{0.0185} & 0.0590 & 0.0305 & 0.0279 & 0.0281 & 0.0291 & 0.0292 \\
+      &           & {\scriptsize (0.00002)} & {\scriptsize (0.0007)} & {\scriptsize (0.0002)} & {\scriptsize (0.0002)} & {\scriptsize (0.0004)} & {\scriptsize (0.0002)} & {\scriptsize (0.0001)} \\
+
+      & (0.7, 1) & \textbf{0.0926} & 0.5090 & 0.1867 & 0.1655 & 0.1523 & 0.1523 & 0.1523 \\
+      &           & {\scriptsize (0.003)} & {\scriptsize (0.013)} & {\scriptsize (0.003)} & {\scriptsize (0.003)} & {\scriptsize (0.004)} & {\scriptsize (0.004)} & {\scriptsize (0.004)} \\
+
+      & (1.0, 0) & \textbf{0.0309} & 0.1178 & 0.0558 & 0.0503 & 0.0498 & 0.0532 & 0.0548 \\
+      &           & {\scriptsize (0.00004)} & {\scriptsize (0.002)} & {\scriptsize (0.001)} & {\scriptsize (0.001)} & {\scriptsize (0.001)} & {\scriptsize (0.001)} & {\scriptsize (0.001)} \\
+
+      & (1.0, 1) & \textbf{0.7558} & 2.3336 & 1.2767 & 1.2055 & 1.1669 & 1.1671 & 1.1671 \\
+      &           & {\scriptsize (0.06)} & {\scriptsize (0.07)} & {\scriptsize (0.06)} & {\scriptsize (0.06)} & {\scriptsize (0.06)} & {\scriptsize (0.06)} & {\scriptsize (0.06)} \\
+
+      & (1.3, 0) & \textbf{0.0699} & 0.2858 & 0.1370 & 0.1431 & 0.1135 & 0.1263 & 0.1390 \\
+      &           & {\scriptsize (0.0004)} & {\scriptsize (0.005)} & {\scriptsize (0.002)} & {\scriptsize (0.02)} & {\scriptsize (0.002)} & {\scriptsize (0.002)} & {\scriptsize (0.001)} \\
+
+      & (1.3, 1) & \textbf{2.0350} & 4.0964 & 3.0809 & 3.0556 & 2.9887 & 2.9890 & 2.9890 \\
+      &           & {\scriptsize (0.2)} & {\scriptsize (0.3)} & {\scriptsize (0.3)} & {\scriptsize (0.3)} & {\scriptsize (0.3)} & {\scriptsize (0.3)} & {\scriptsize (0.3)} \\
+
+        \hline
+WITS & (0.7, 0) & \textbf{0.0086} & 0.0122 & 0.0099 & 0.0092 & \textbf{0.0086} & \textbf{0.0086} & 0.0196 \\
+     &           & {\scriptsize (0.00002)} & {\scriptsize (0.00007)} & {\scriptsize (0.00006)} & {\scriptsize (0.00004)} & {\scriptsize (0.00003)} & {\scriptsize (0.00004)} & {\scriptsize (0.0)} \\
+
+     & (0.7, 1) & 0.0945 & \textbf{0.0736} & 0.1114 & 65.2589 & 0.2793 & 0.4506 & 0.4625 \\
+     &           & {\scriptsize (0.01)} & {\scriptsize (0.007)} & {\scriptsize (0.02)} & {\scriptsize (61.0)} & {\scriptsize (0.05)} & {\scriptsize (0.01)} & {\scriptsize (0.01)} \\
+
+     & (1.0, 0) & 0.0132 & 0.0173 & 0.0140 & 0.0135 & 0.0132 & \textbf{0.0131} & nan \\
+     &           & {\scriptsize (0.00008)} & {\scriptsize (0.0001)} & {\scriptsize (0.00008)} & {\scriptsize (0.00006)} & {\scriptsize (0.0001)} & {\scriptsize (0.00007)} & {\scriptsize (nan)} \\
+
+     & (1.0, 1) & \textbf{0.8026} & 1.9767 & 5.9140 & 6.9676 & 4.2028 & 4.4954 & 4.6227 \\
+     &           & {\scriptsize (0.1)} & {\scriptsize (0.7)} & {\scriptsize (4.0)} & {\scriptsize (6.0)} & {\scriptsize (0.2)} & {\scriptsize (0.2)} & {\scriptsize (0.2)} \\
+
+     & (1.3, 0) & \textbf{0.0312} & 0.0422 & 0.0320 & 0.0314 & 0.0318 & 0.0444 & 0.1213 \\
+     &           & {\scriptsize (0.001)} & {\scriptsize (0.001)} & {\scriptsize (0.001)} & {\scriptsize (0.001)} & {\scriptsize (0.002)} & {\scriptsize (0.009)} & {\scriptsize (0.006)} \\
+
+     & (1.3, 1) & \textbf{2.1723} & 240.4041 & 560.7473 & 143.2240 & 433.9093 & 13.5632 & 13.8273 \\
+     &           & {\scriptsize (0.4)} & {\scriptsize (210.0)} & {\scriptsize (340.0)} & {\scriptsize (120.0)} & {\scriptsize (400.0)} & {\scriptsize (0.8)} & {\scriptsize (0.9)} \\
+
+        \hline
+    \end{tabular}
+\end{table}
+
+\begin{table}[!t]
+\caption{Mean runtime to convergence (in seconds) for NNEinFact and Adam baselines. We drop Adam, 1.0 from the comparison as it performs poorly relative to other baselines in~\Cref{tab:auto}. Lowest values in each row are bolded. Standard errors are shown in parentheses below each row. }
+\label{tab:time}
+    \centering
+    \scriptsize
+    \begin{tabular}{cccccccc}
+    \hline
+       Dataset & $(\alpha,\beta)$ & NNEinFact & Adam, 0.01 & Adam, 0.05 & Adam, 0.1 & Adam, 0.3 & Adam, 0.5 \\
+       \hline
+Uber & (0.7, 0) & \textbf{9.98} & 213.84 & 89.54 & 78.25 & 26.02 & 19.79 \\
+     &           & {\scriptsize (1.87)} & {\scriptsize (13.96)} & {\scriptsize (6.07)} & {\scriptsize (7.11)} & {\scriptsize (2.36)} & {\scriptsize (2.11)} \\
+
+     & (0.7, 1) & 71.42 & 262.43 & 69.29 & 51.40 & 2.34 & \textbf{1.29} \\
+     &           & {\scriptsize (9.62)} & {\scriptsize (23.68)} & {\scriptsize (12.34)} & {\scriptsize (4.64)} & {\scriptsize (0.25)} & {\scriptsize (0.12)} \\
+
+     & (1.0, 0) & 21.60 & 256.78 & 101.52 & 72.28 & 27.42 & \textbf{15.64} \\
+     &           & {\scriptsize (3.71)} & {\scriptsize (15.88)} & {\scriptsize (11.11)} & {\scriptsize (5.53)} & {\scriptsize (4.18)} & {\scriptsize (1.10)} \\
+
+     & (1.0, 1) & 136.94 & 256.59 & 103.21 & 79.78 & 151.50 & \textbf{73.97} \\
+     &           & {\scriptsize (32.55)} & {\scriptsize (26.54)} & {\scriptsize (11.10)} & {\scriptsize (9.87)} & {\scriptsize (31.83)} & {\scriptsize (9.77)} \\
+
+     & (1.3, 0) & 52.39 & 264.45 & 133.72 & 66.96 & 22.65 & \textbf{18.84} \\
+     &           & {\scriptsize (7.48)} & {\scriptsize (17.70)} & {\scriptsize (15.20)} & {\scriptsize (7.50)} & {\scriptsize (2.35)} & {\scriptsize (1.99)} \\
+
+     & (1.3, 1) & 73.26 & 256.46 & 104.08 & \textbf{72.61} & 180.02 & 109.31 \\
+     &           & {\scriptsize (32.12)} & {\scriptsize (33.09)} & {\scriptsize (8.70)} & {\scriptsize (14.79)} & {\scriptsize (26.49)} & {\scriptsize (13.29)} \\
+
+        \hline
+ICEWS & (0.7, 0) & \textbf{150.34} & 905.15 & 873.73 & 883.17 & 373.39 & 179.04 \\
+      &           & {\scriptsize (19.45)} & {\scriptsize (63.21)} & {\scriptsize (29.86)} & {\scriptsize (59.37)} & {\scriptsize (41.83)} & {\scriptsize (14.08)} \\
+
+      & (0.7, 1) & \textbf{17.39} & 1068.02 & 1012.34 & 953.73 & 60.05 & 56.68 \\
+      &           & {\scriptsize (2.11)} & {\scriptsize (90.93)} & {\scriptsize (106.03)} & {\scriptsize (94.33)} & {\scriptsize (4.78)} & {\scriptsize (4.75)} \\
+
+      & (1.0, 0) & \textbf{97.24} & 1020.31 & 988.65 & 847.52 & 469.25 & 250.52 \\
+      &           & {\scriptsize (11.69)} & {\scriptsize (82.23)} & {\scriptsize (71.19)} & {\scriptsize (26.46)} & {\scriptsize (60.10)} & {\scriptsize (23.01)} \\
+
+      & (1.0, 1) & \textbf{15.03} & 1060.25 & 982.92 & 904.38 & 55.08 & 50.22 \\
+      &           & {\scriptsize (1.77)} & {\scriptsize (78.49)} & {\scriptsize (77.31)} & {\scriptsize (73.65)} & {\scriptsize (4.26)} & {\scriptsize (3.85)} \\
+
+      & (1.3, 0) & \textbf{57.32} & 924.56 & 920.01 & 849.07 & 550.83 & 363.19 \\
+      &           & {\scriptsize (7.92)} & {\scriptsize (63.12)} & {\scriptsize (57.74)} & {\scriptsize (96.13)} & {\scriptsize (74.36)} & {\scriptsize (43.81)} \\
+
+      & (1.3, 1) & \textbf{11.97} & 1070.40 & 1043.53 & 909.01 & 49.60 & 44.79 \\
+      &           & {\scriptsize (1.64)} & {\scriptsize (87.95)} & {\scriptsize (94.82)} & {\scriptsize (66.34)} & {\scriptsize (4.20)} & {\scriptsize (3.40)} \\
+
+        \hline 
+WITS & (0.7, 0) & \textbf{134.03} & 346.20 & 360.72 & 334.97 & 304.82 & 305.83 \\
+     &           & {\scriptsize (14.21)} & {\scriptsize (8.52)} & {\scriptsize (8.71)} & {\scriptsize (11.75)} & {\scriptsize (21.33)} & {\scriptsize (26.01)}  \\
+
+     & (0.7, 1) & \textbf{24.01} & 320.79 & 306.93 & 298.41 & 330.51 & 253.89 \\
+     &           & {\scriptsize (6.34)} & {\scriptsize (8.57)} & {\scriptsize (13.94)} & {\scriptsize (19.42)} & {\scriptsize (7.66)} & {\scriptsize (17.21)}\\
+
+     & (1.0, 0) & \textbf{59.19} & 356.28 & 345.07 & 329.17 & 267.04 & 342.03\\
+     &           & {\scriptsize (9.13)} & {\scriptsize (5.54)} & {\scriptsize (15.77)} & {\scriptsize (5.27)} & {\scriptsize (25.07)} & {\scriptsize (7.28)}  \\
+
+     & (1.0, 1) & \textbf{18.81} & 306.27 & 219.45 & 269.30 & 292.06 & 205.46 \\
+     &           & {\scriptsize (5.13)} & {\scriptsize (8.53)} & {\scriptsize (32.27)} & {\scriptsize (13.78)} & {\scriptsize (16.01)} & {\scriptsize (19.38)}  \\
+
+     & (1.3, 0) & \textbf{58.32} & 353.93 & 361.27 & 336.98 & 327.41 & 339.76 \\
+     &           & {\scriptsize (15.61)} & {\scriptsize (8.55)} & {\scriptsize (6.00)} & {\scriptsize (10.06)} & {\scriptsize (21.99)} & {\scriptsize (21.37)} \\
+
+     & (1.3, 1) & \textbf{17.69} & 345.67 & 319.95 & 310.72 & 295.07 & 193.25  \\
+     &           & {\scriptsize (3.85)} & {\scriptsize (11.01)} & {\scriptsize (20.04)} & {\scriptsize (18.11)} & {\scriptsize (19.39)} & {\scriptsize (17.05)} \\
+        \hline
+    \end{tabular}
+\end{table}
+
+

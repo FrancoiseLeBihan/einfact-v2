@@ -1,0 +1,5 @@
+NNEinFact is most valuable when exploring 
+custom factorizations beyond CP and Tucker, using loss functions other than 
+least-squares, or rapidly prototyping tensor models. Like most nonnegative algorithms, NNEinFact would likely benefit from multiple random initializations. For standard CP or Tucker with least-squares where specialized algorithms like hierarchical alternating least squares exist, such implementations may offer empirical advantages.~\looseness=-1
+
+NNEinFact provides a foundation for modern tensor methods as multiway data becomes increasingly prevalent. The connection between ($\alpha$, $\beta$)-divergences and probabilistic models motivates principled approaches to scientific modeling. The computational efficiency of einsum-based updates, combined with rapidly improving hardware, may enable greater scaling. Beyond nonnegative tensor decomposition, we expect NNEinFact to offer value in many areas of machine learning where tensor decomposition methods are becoming increasingly relevant, such as probabilistic circuits~\citep{loconte2025what} and tensor-based regression~\citep{llosa2022reduced}.~\looseness=-1

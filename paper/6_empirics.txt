@@ -1,0 +1,100 @@
+Our experiments compare model structures and optimization algorithms across many loss functions. First, we compare NNEinFact to gradient-based automatic differentiation, demonstrating superior model fit at a fraction of the cost. Then, we demonstrate how problem-tailored tensor decompositions achieve superior data fit compared to standard methods in three real-world settings. Through a case study on Uber pickup data in New York City, we show how custom models recover interpretable spatiotemporal structure using a very small number of parameters.~\looseness=-1 
+
+\subsection{Datasets}
+We consider three complex multi-way datasets from network science, a domain where practitioners are developing tensor decomposition methods to capture latent structure underlying the data~\citep{contisciani2022inference, aguiar2024tensor, hood2025broad}. When handling real tensor data, modes typically correspond to a scientifically meaningful quantity (such as time). In such cases, we use the most natural letter to index that mode. For example, we index the `time' mode by $\obs{t}$ and the `action' mode by $\obs{a}$.~\looseness=-1
+
+\textbf{ICEWS.} Dyadic relational data of the form "country $\obs{i}$ took action $\obs{a}$ toward country $\obs{j}$ at time $\obs{t}$" are commonly studied in international relations \citep{schrodt_event_1995}. These data can be interpreted as a directed, dynamic multilayer network comprising $\obs{V}$ nodes (representing actors), $\obs{A}$ layers (representing action types), and $\obs{T}$ time periods. Such structure naturally corresponds to a 4-mode count tensor ${\Ytensor \in \mathbb{N}_0^{\obs{V} \times \obs{V} \times \obs{A} \times \obs{T}}}$, where each element $y_{\obs{ijat}}$ denotes the number of times country $\obs{i}$ took action $\obs{a}$ toward country $\obs{j}$ during time period $\obs{t}$. We analyze data of this form from the Integrated Crisis Early Warning System (ICEWS)~\citep{boschee_icews_2023} spanning 1995--2013, where events are aggregated into monthly counts. This data yields the observed tensor $\Ytensor^{(\text{icews})} \in \mathbb{N}_0^{249 \times 249 \times 20 \times 228}$.~\looseness=-1
+
+\textbf{Uber.} Using Uber pickup data~\citep{frosttdataset}, we construct a 5-mode spatiotemporal tensor $\Ytensor^{(\text{uber})} \in \mathbb{N}_0^{27 \times 7 \times 24 \times 100 \times 100}$ where $y_{\obs{wdhij}}$ denotes the number of ride pickups in hour $\obs{h}$ of day $\obs{d}$ of week $\obs{w}$ at spatial location $(\obs{i},\obs{j})$. The dataset consists of ride pickups in New York City from April to September 2014.  This dataset exhibits strong spatial dependencies and rich temporal structure, including seasonal and cyclical patterns.~\looseness=-1
+
+\textbf{WITS.} Finally, we use merchandise-trade data accessed from the World Integrated Trade Solution (WITS) \citep{wits2025}. WITS is a delivery platform maintained by the World Bank that provides standardized access to several primary sources. In this paper, we use export data as reported by national customs authorities via WITS as done by \citet{jian2025}. We retain annual trade values (thousand USD) for 96 HS2 categories across 196 countries over 1996--2024. We consider international trade data in the form of a 4-mode tensor $\Ytensor^{(\text{trade})} \in \mathbb{N}_0^{196 \times 196 \times 96 \times 29}$, where $y_{\obs{e}\obs{i}\obs{g}\obs{t}}$ represents the value (in U.S. dollars) of good $\obs{g}$ exported from country $\obs{e}$ to country $\obs{i}$ in year $\obs{t}$. This data suffers from missingness and noise, primarily due to asymmetric reporting from importing and exporting countries~\citep{chen2022advancing}. ~\looseness=-1
+
+\subsection{Divergences}
+We implement NNEinFact for the $(\alpha,\beta)$-divergence defined in Appendix~\ref{sec:apx-alg}, denoting the loss by $\D_{\alpha, \beta}$. There is a tight connection between $(\alpha, \beta)$-divergence minimization and maximum likelihood estimation in exponential family models~\citep{yilmaz2012alpha}. In our experiments, we leverage this relationship to choose $\alpha$ and $\beta$, selecting $\beta=0$ for count data (corresponding to the Poisson likelihood), $\beta=-0.5$ for sparse positive continuous data (corresponding to the compound Poisson-gamma likelihood). We further adjust ${\alpha \in \{0.7,0.8, 1.0, 1.2, 1.3\}}$. When $\alpha, \beta, \alpha + \beta \neq 0$, as is the case in all of our experiments, the loss-specific functions $a(x,y)$ and $b(x,y)$ take the form 
+\begin{align}
+a(x,y) = x^\alpha y^{\beta - 1}, \quad b(x,y) = y^{\alpha + \beta - 1}.
+\end{align}
+From this perspective, $\alpha$ is a robustness parameter: choices of $\alpha < 1 $ decrease the signal of large values (such as outliers), while choices of $\alpha > 1$ decrease the signal of small values (such as missing values encoded as zeros).~\looseness=-1 
+
+\subsection{Models}\label{sec:models}
+For all datasets, we fit a variety of common factorizations including CP and tensor-train as defined in equations \eqref{eq:cp} and \eqref{eq:tt}. We also fit four versions of Tucker. We fit both \textit{hypercubic} Tucker, where all latent dimensions $\lat{R_m}$ are equal, and the Tucker decomposition where $\lat{R_m}$ is proportional to the observed dimension $\obs{I_m}$, as well as each of their low-rank (LR) variants, defined in equation~\eqref{eq:core_decomp}. ~\looseness=-1
+
+\textbf{Custom models.}
+We also fit custom models tailored to each dataset. When designing these models, we use basic domain-specific knowledge to determine which modes have similar/different complexity and generally recommend applying domain-specific knowledge to build more complex models. For the Uber data, we fit the model \begin{align}\label{eq:uber}
+    \hat y_{\obs{wdhij}} = \sum_{\lat{r}=1}^{\lat{R}} \theta_{\obs{w}\lat{r}}^{\ms{(1)}}  \theta_{\obs{d}\lat{r}}^{\ms{(2)}} \theta_{\obs{h}\lat{r}}^{\ms{(3)}} \sum_{\lat{k}=1}^{\lat{K}} \theta_{\obs{i}\lat{rk}}^{\ms{(4)}}\theta_{\obs{j}\lat{rk}}^{\ms{(5)}}
+\end{align}
+corresponding to 
+$
+\texttt{\obs{w}\lat{r},\obs{d}\lat{r},\obs{h}\lat{r},\obs{i}\lat{rk},\obs{j}\lat{rk}}\rightarrow \texttt{\obs{wdhij}}.$ Each latent class $\lat{r}$ corresponds to a different temporal pattern and each of these temporal pattern has an additional $\lat{K}$ factors corresponding to the latitude and longitude modes $\obs{i}$ and $\obs{j}$. Setting $\lat{K}\!=\!1$ recovers the rank-$\lat{R}$ CP decomposition, while $\lat{K}\!>\!1$ allocates relatively more parameters to the spatial modes than the others.~\looseness=-1 
+
+The ICEWS tensor has three modes with dimension greater than $200$ (corresponding to sender, receiver, month), yet the `action' mode has dimension $20$. Such oblong structure motivates our custom model. The rank $\lat{R}$ CP decomposition assigns all modes the same latent dimension to create factor matrices with size ${\obs{I_m} \times \lat{R}}$. Instead, we consider the model:
+\begin{align}
+    \hat y_{\obs{ijat}} = \sum_{\lat{r}=1}^{\lat{R}} \theta^{\ms{(1)}}_{\obs{i}\lat{r}}\theta^{\ms{(2)}}_{\obs{j}\lat{r}}(\underbrace{\sum_{\lat{k}=1}^{\lat{K}} \phi_{\obs{a}\lat{k}} w_{\lat{kr}}}_{\theta^{\ms{(3)}}_{\obs{a}\lat{r}}})\theta^{\ms{(4)}}_{\obs{t}\lat{r}},
+\end{align}
+a rank-$\lat{R}$ CP decomposition with factor matrix $\Theta^{\ms{(3)}}$ corresponding to the `action' mode of rank $\lat{K}\!\ll\!\lat{R}$. This model corresponds to the string $\texttt{\obs{i}\lat{r},\obs{j}\lat{r},\obs{a}\lat{k},\lat{kr},\obs{t}\lat{r}$\rightarrow$\obs{ijat}}$.~\looseness=-1
+
+Finally, the WITS tensor includes $196$ importing and exporting countries and $96$ goods but only $29$ time steps. We impose low-rank structure on the `time' mode to estimate
+\begin{align}
+    \hat y_{\obs{eigt}} = \sum_{\lat{r}=1}^{\lat{R}} \theta_{\obs{e}\lat{r}}^{\ms{(1)}} \theta_{\obs{i}\lat{r}}^{\ms{(2)}} \theta_{\obs{g}\lat{r}}^{\ms{(3)}} \sum_{\lat{k}=1}^{\lat{K}} \phi_{\obs{t}\lat{k}} w_{\lat{kr}}.
+\end{align}
+for ${\lat{K}\!\ll\!\lat{R}}$. This model imposes less complex temporal structure than that of the network structure, which governs good-specific interactions between importers and exporters.~\looseness=-1  
+
+\subsection{Baselines}
+We compare NNEinFact to baseline algorithms and models.~\looseness=-1 
+
+\textbf{Algorithms.}
+We implement gradient-based automatic differentiation as a baseline to the multiplicative update algorithm in~\Cref{sec:algo} and minimize the loss using Adam~\citep{kingma2015adam}. We update the log-transformed parameters to uphold the nonnegativity constraint. Adam's fit is often sensitive to its initial learning rate parameter, so we use baselines with initial learning rates $(0.01, 0.05, 0.1, 0.3, 0.5, 1)$. All algorithms were implemented in Pytorch and run on a GPU.~\looseness=-1 
+
+\textbf{Models.}
+We interpret the common models in~\Cref{sec:models} as baselines to the custom models and fit them using the multiplicative updates of~\Cref{alg:mu}. All models use a roughly equal number of parameters, which are initialized at random from the standard uniform distribution.~\looseness=-1 
+
+\subsection{Experimental design}
+We split each dataset for training and evaluation. For each observed tensor, we create ten\footnote{For WITS, we create $50$ train-test splits due to high variation in heldout loss among splits.} 
+train-test splits. For each split, we randomly assign each element $\obs{\mathbf{i}}$ of $\Ytensor$ to the training set with $90\%$ probability and otherwise assign it to a heldout set $\mathcal{H}$. We further allocate $5\%$ of the training set to a validation set $\mathcal{V}$ and use it to check for early stopping. Each method minimizes the training loss $\sum_{\obs{\mathbf{i}} \not \in \mathcal{H},\mathcal{V}} \D(\yi, \mui)$. ~\looseness=-1 
+
+Training and evaluation with masked values is straightforward, since all methods can handle missing values. For NNEinFact, given a binary mask $\mathcal{M}$ the size of $\Ytensor$, one proceeds as usual by replacing $\Ytensor$ and $\Yhattensor$ with $\mathcal{M} \odot \Ytensor$ and $\mathcal{M} \odot \Yhattensor$ in \Cref{alg:mu}.~\looseness=-1
+
+\textbf{Evaluation metric.} We evaluate each method using average heldout loss, defined as 
+\begin{align}
+\bar{\mathcal{L}}_{\alpha,\beta} =  \frac{1}{|\mathcal{H}|}\sum_{\mathbf{\obs{i}} \in \mathcal{H}} \D_{\alpha, \beta}(\yi, \mui).
+\end{align}
+
+
+\textbf{Time to convergence.} We also compare each optimization method's runtime to convergence for many loss functions. In particular, we fit each dataset's custom model using the $(\alpha, \beta)$-divergence with $\alpha \in \{0.7,1.0,1.3\}$ and ${\beta \in \{0,1\}}$. Each method runs until the convergence criteria specified in Appendix~\ref{sec:apx-alg} is met. We measure time to convergence using wall-clock time.~\looseness=-1
+
+\FloatBarrier
+\begin{figure}[!h]
+    \centering
+\includegraphics[width=\linewidth]{figs/app_auto.pdf}
+    \caption{\textbf{NNEinFact is more efficient than automatic differentiation and achieves better fit.} Black: NNEinFact's multiplicative update algorithm. Red: gradient-based automatic differentiation with Adam. Each row corresponds to a different $(\alpha, \beta)$ parameterization. Each pair of columns corresponds to a different dataset. Left columns: each point corresponds to a random train-test split and method. Heldout $(\alpha, \beta)$-divergence is shown against wall-clock time to convergence. Right columns: heldout $(\alpha, \beta)$-divergence (on log scale) against training iteration. Each line represents one run of each algorithm.~\looseness=-1}
+    \label{fig:autocomp}
+\end{figure}
+\FloatBarrier
+
+\subsection{Results}
+\Cref{fig:autocomp} shows how NNEinFact's multiplicative updates outperform gradient-based automatic differentiation in both runtime and heldout loss across the six $(\alpha,\beta)$ parameterizations when fit to the Uber, ICEWS, and WITS data (left, middle, right). Each row corresponds to a different $(\alpha, \beta)$ parameterization. For each dataset, the left column shows the heldout loss against runtime to convergence (where lower is better); each plot's optimal region is the bottom left corner. Each point represents a different train-test split. We observe that NNEinFact's points typically congregate in the bottom left, converging quickly to small loss values in most cases. The right column plots the heldout loss (in log scale) by iteration corresponding to the first train-test split. The black dotted line corresponds to the multiplicative updates, which decreases the loss much more rapidly than its competitors. These patterns hold across all datasets. We report the mean runtimes, heldout loss values, and standard errors for each method in Appendix~\ref{sec:apx_results}. 
+
+
+
+\begin{figure}[!h]
+    \centering
+    \includegraphics[width=\linewidth]{figs/HL_A.pdf}
+    \caption{\textbf{Custom models attain lower heldout loss than common ones.} Model comparison: fit, as measured by average heldout loss, to three large tensor datasets (Uber, ICEWS, WITS). Error bars represent the interquartile range across random train-test splits. For each dataset, a different custom model achieves the lowest heldout loss. Each loss is tailored to the data. We set ${\beta\!=\!0}$ for count data and ${\beta\!=\!- 0.5}$ for sparse, positive continuous data. $\alpha$ controls a model's robustness to missing values, outliers, and model misspecification.}
+    \label{fig:model}
+\end{figure}
+
+\textbf{Model comparison.} We report each model's lowest mean heldout losses and their corresponding standard errors in Appendix~\ref{sec:apx_results}. \Cref{fig:model} shows how the custom models attain lower heldout loss values than their baselines. The only exception occurs for {ICEWS, $\alpha\!=\!0.8$}, where CP offers a $1\%$ reduction in heldout loss to the custom model.  At times, LR Tucker (red, brown) quickly converges to a poor stationary point ($\alpha = 0.8, 1.0$ and ICEWS, WITS). When avoiding this situation, LR Tucker often attains much lower loss values than its full version (green, purple). Overall, these results highlight how NNEinFact's ability to fit custom models offers empirical improvement over existing models.~\looseness=-1
+
+
+
+\textbf{NNEinFact recovers interpretable qualitative structure.} Finally, we highlight interpretable qualitative structure uncovered by the custom model applied to the Uber data. We further partition the $100 \times 100$ spatial grid into a $400\times 400$ mesh, set the number of temporal classes to $\lat{R}\!=\!10$, the number of temporal-specific spatial factors to $\lat{K}\!=\!6$ and fit the custom model. With only $48,580$ parameters (relative to $725$ million entries), the estimated custom model recovers classes corresponding to interpretable spatiotemporal structure. Three of these classes are shown in~\Cref{fig:qual}.~\looseness=-1
+\FloatBarrier
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=\linewidth]{figs/Q_A.pdf}
+    \caption{\textbf{NNEinFact uncovers interpretable spatiotemporal structure.} Each row depicts a latent class $\lat{r}$ from the model $\texttt{\obs{w}\lat{r},\obs{d}\lat{r},\obs{h}\lat{r},\obs{i}\lat{rk},\obs{j}\lat{rk}}\rightarrow \texttt{\obs{wdhij}}$. The top row shows temporal patterns by time of day and day of week, while the bottom row shows spatial loadings. The first two columns capture weekday morning and evening commutes, and the third captures weekend nightlife. Combined with the spatial loadings, these classes reveal interpretable spatiotemporal structure: morning commutes originate in residential areas, evening commutes in Midtown Manhattan, and nightlife around West Village.}
+    \label{fig:qual}
+\end{figure}
+\FloatBarrier
+
+ The first class captures weekday morning commutes across Manhattan. The second shows weekday afternoon commutes originating in Midtown Manhattan, the city’s primary central business district. The third reflects weekend nightlife concentrated around West Village. Capturing similarly rich spatial structure with standard models (e.g., CP) requires either a large rank (${\lat{R}\!\gg\!10}$), sacrificing parsimonious temporal structure, or coupling latitude and longitude into a $400^2$-dimensional spatial mode, prohibitively increasing the parameter count.~\looseness=-1 

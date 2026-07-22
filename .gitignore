@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+.cache/
+data/.cache/
+data/kaggle_datasets/
+kaggle_datasets/
+.venv/
+.pytest_cache/

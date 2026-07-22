@@ -1,0 +1,97 @@
+% !TEX root = main.tex
+
+% MATH PACKAGES
+% Note: amsfonts conflicts with mathdesign (loaded in preamble.tex)
+% mathdesign provides its own blackboard bold, so we skip amsfonts
+\usepackage{centernot}
+\usepackage{amsthm}         % theorem environments
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage{mathtools}      % extends amsmath
+\usepackage{amsbsy}         % bold math symbols
+\usepackage{amstext}        % text in math mode
+\usepackage{thmtools}       % theorem tools
+\usepackage{thm-restate}    % restatable theorems
+
+% compatibility w/ parskip https://tex.stackexchange.com/questions/25346/wrong-spacing-before-theorem-environment-amsthm
+\begingroup
+    \makeatletter
+    \@for\theoremstyle:=definition,remark,plain\do{%
+        \expandafter\g@addto@macro\csname th@\theoremstyle\endcsname{%
+            \addtolength\thm@preskip\parskip
+            }%
+        }
+\endgroup
+
+\DeclareRobustCommand{\mb}[1]{\ensuremath{\mathbf{\boldsymbol{#1}}}}
+% \DeclareRobustCommand{\mb}[1]{\mathbold{#1}}
+
+\DeclareRobustCommand{\KL}[2]{\ensuremath{\textrm{KL}\left(#1\;\|\;#2\right)}}
+
+% \DeclareMathOperator*{\argmax}{arg\,max}
+% \DeclareMathOperator*{\argmin}{arg\,min}
+
+\crefname{lemma}{lemma}{lemmas}
+\Crefname{lemma}{Lemma}{Lemmas}
+\crefname{thm}{theorem}{theorems}
+\Crefname{thm}{Theorem}{Theorems}
+\crefname{prop}{proposition}{propositions}
+\Crefname{prop}{Proposition}{Propositions}
+\crefname{assumption}{assumption}{assumptions}
+\crefname{assumption}{Assumption}{Assumptions}
+
+
+% \newtheorem{thm}{Theorem} % reset theorem numbering for each chapter
+% \newtheorem{defn}{Definition} % definition numbers are dependent on theorem numbers
+% \newtheorem{prop}[thm]{Proposition}
+% \newtheorem{exmp}[thm]{Example} % same for example numbers
+% \newtheorem{lemma}[thm]{Lemma}
+% \newtheorem{assumption}{Assumption}
+% \newtheorem{corollary}[thm]{Corollary}
+% Independence symbol (double perp): use \indpt
+\def\independenT#1#2{\mathrel{\rlap{$#1#2$}\mkern2mu{#1#2}}}
+
+
+
+\def\checkmark{\tikz\fill[scale=0.4](0,.35) -- (.25,0) -- (1,.7) -- (.25,.15) -- cycle;} 
+
+% Note: booktabs loaded in preamble.tex; arydshln adds dashed lines
+\usepackage{arydshln}
+\makeatletter
+\def\adl@drawiv#1#2#3{%
+        \hskip.5\tabcolsep
+        \xleaders#3{#2.5\@tempdimb #1{1}#2.5\@tempdimb}%
+                #2\z@ plus1fil minus1fil\relax
+        \hskip.5\tabcolsep}
+\newcommand{\cdashlinelr}[1]{%
+  \noalign{\vskip\aboverulesep
+           \global\let\@dashdrawstore\adl@draw
+           \global\let\adl@draw\adl@drawiv}
+  \cdashline{#1}
+  \noalign{\global\let\adl@draw\@dashdrawstore
+           \vskip\belowrulesep}}
+\makeatother
+
+\newenvironment{proofsk}{%
+  \renewcommand{\proofname}{Proof sketch}\proof}{\endproof}
+
+\renewcommand{\epsilon}{\varepsilon}
+
+%********************************************************************
+% Extra theorem environments
+%********************************************************************
+
+\declaretheorem[style=plain,numberwithin=section,name=Theorem]{theorem}
+\declaretheorem[style=plain,sibling=theorem,name=Lemma]{lemma}
+\declaretheorem[style=plain,sibling=theorem,name=Proposition]{proposition}
+\declaretheorem[style=plain,sibling=theorem,name=Corollary]{cor}
+\declaretheorem[style=plain,sibling=theorem,name=Claim]{claim}
+\declaretheorem[style=plain,sibling=theorem,name=Conjecture]{conj}
+\declaretheorem[style=definition,sibling=theorem,name=Definition]{defn}
+\declaretheorem[style=definition,name=Assumption]{assumption}
+\declaretheorem[style=definition,sibling=theorem,name=Example]{example}
+\declaretheorem[style=remark,sibling=theorem,name=Remark]{remark}
+
+\newenvironment{example*}
+ {\pushQED{\qed}\example}
+ {\popQED\endexample}
+\numberwithin{equation}{section}

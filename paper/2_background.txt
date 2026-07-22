@@ -1,0 +1,59 @@
+We consider the $M$-mode tensor $\Ytensor \in \mathbb{R}_{\geq 0}^{\obs{I_1} \times \dots \times \obs{I_M}}$ (where mode $m$ has dimension ${\obs{I_m}}$) with nonnegative entries ${y_{\obs{i_1, \dots, i_M}}}$, writing $\obs{\bi} = (\obs{i_1}, \dots, \obs{i_M})$. The task of nonnegative tensor decomposition is to approximate $\Ytensor
+$ with $\Yhattensor$ such that $y_{\obs{\mathbf{i}}} \approx \hat y_{\obs{\mathbf{i}}}$ for all $\obs{\mathbf{i}}$. We construct $\Yhattensor$ as the \textit{tensor contraction} over $K$ \lat{contracted} modes, where the $k^{\text{th}}$ contracted mode has dimension $\lat{R_k}$. Writing $\lat{\br} = (\lat{r_1}, \dots, \lat{r_K})$ to denote these additional indices, this is simply $\mui = {\sum_{\br}} \muir$.~\looseness=-1
+
+We parameterize $\Yhattensor$ using $L$ vectors, matrices, or higher order tensors $\Tms{1}, \Tms{2}, \dots, \Tms{L}$. For each $\Tms{\ell}$,  its modes may be partitioned into \obs{observed} modes which are shared with $\Ytensor$ and \lat{contracted} modes which are not shared by $\Ytensor$. We use $\obs{\mathbf{i}_\ell}$ to index the observed indices of $\Tms{\ell}$ and $\lat{\mathbf{r}_\ell}$ to index its contracted indices. The family of decompositions we consider, referred to as  \textit{generalized tensor factorizations}~\citep{yilmaz2011generalised}, takes the element-wise form~\looseness=-1  
+\begin{align} \label{eq:contraction_structure}
+  \mui = {\sum_{\br}} \muir, \quad {\muir = \prod_{\ell=1}^L \theta^{\ms{(\ell)}}_{\obs{\textbf{i}_{\ell}}, \lat{\br_\ell}}}.
+\end{align}
+Expression \eqref{eq:contraction_structure} is compactly written using \textit{einsum notation}. Under einsum notation, indices which appear on the only left (and not the right) are summed over; the indices on the right specify the observed indices. Conveniently,
+\begin{align}\label{eq:einsum}
+    \obs{\bi}_{1}\lat{\br_{1}}, \obs{\bi_{2}}\lat{\br_{2}}, \dots, \obs{\bi_{L}}\lat{\br_{L}} \rightarrow \obs{i_1 i_2 \ldots i_M}
+\end{align}
+corresponds to the einsum notation for~\eqref{eq:contraction_structure} and is compactly expressed as a string in Python. We denote \eqref{eq:einsum} by \texttt{model\_str}. Given parameters $\all$, the operation
+\begin{align}\label{eq:einstr}
+{\Yhattensor \leftarrow \texttt{einsum}(\texttt{model\_str}, \all)}
+\end{align}
+efficiently computes $\Yhattensor$. This family includes the canonical choices of Tucker~\citep{tucker_mathematical_1966}, CP~\citep{hitchcock1927expression}, and tensor-train~\citep{oseledets2011tensor}, among others.~\looseness=-1 
+
+
+\textbf{Example 1: Tucker.}
+The Tucker decomposition of multi-rank $(\lat{R_1}, \lat{R_2}, \ldots, \lat{R_M})$ is defined as
+\begin{align}\label{eq:tucker}
+    \mui = \sum_{\lat{r_1}=1}^{\lat{R_1}} \ldots \sum_{\lat{r_M}=1}^{\lat{R_M}} \muir, \quad \muir = \theta_{\br} \prod_{m=1}^M \theta_{\obs{i_m}, \lat{r_m}}^{\ms{(m)}}.
+\end{align}
+It consists of factor matrices $\Theta^{\ms{(m)}} \in \mathbb{R}^{\obs{I_m} \times \lat{R_m}}$ and \textit{core tensor} $\Theta \in \mathbb{R}^{\lat{R_1} \times \dots \times \lat{R_M}}$. The model string is given by 
+   $ \obs{i_1} \lat{r_1}, \dots, \obs{i_M}\lat{r_M}, \lat{r_1} \dots \lat{r_M} \to \obs{i_1}\dots \obs{i_M}.$
+
+\textbf{Example 2: CP.}
+The rank-$\lat{R}$ CP decomposition is a special case of Tucker, where each mode has latent dimension $\lat{R_m} = \lat{R}$, and the core tensor has elements $\theta_{\lat{r_1}, \dots, \lat{r_M}} = 1$ along the diagonal and $0$ otherwise. It takes the form
+\begin{align} \label{eq:cp}
+   \mui = \sum_{\lat{r}=1}^{\lat{R}} \hat{y}_{\bi, \lat{r}}, \quad \hat{y}_{\bi, \lat{r}} = \prod_{m=1}^M  \theta^{\ms{(m)}}_{\obs{i_m}, \lat{r}}
+\end{align} and has simplified model string given by $
+    \obs{i_1} \lat{r}, \dots, \obs{i_M}\lat{r} \to \obs{i_1}\dots \obs{i_M}.$
+
+\textbf{Example 3: Tensor-train. }
+The tensor-train decomposition, with ${\lat{R_1} = \lat{R_{M+1}} = 1}$, is given by the string ${
+    \obs{i_1} \lat{r_1 r_2}, \obs{i_2}\lat{r_2 r_3} \dots, \obs{i_M}\lat{r_M r_{M+1}} \to \obs{i_1}\dots \obs{i_M}}$ and takes the form
+\begin{align}\label{eq:tt}
+    \mui = \sum_{\lat{r_1}=1}^{\lat{R_1}} \ldots \sum_{\lat{r_{M+1}}=1}^{\lat{R_{M+1}}} \muir,\quad \muir = \prod_{m=1}^{M} \theta^{\ms{(m)}}_{\obs{i_m}, \lat{r_m}, \lat{r_{m+1}}}.
+\end{align}
+
+
+While these examples correspond to common decompositions, we emphasize how this family extends \textit{beyond} them.
+
+\textbf{Custom examples.} Recent work~\citep{aguiar2024tensor, hood2024ell_0} develops variants of the nonnegative Tucker decomposition to model complex network data. Tucker has conceptual appeal, yet it suffers from the curse of dimensionality in its core tensor, which scales exponentially in its elements with the number of modes $M$.  Further parameterizing the core tensor by a rank-$\lat{R}$ CP decomposition such that~\looseness=-1 
+\begin{align}\label{eq:core_decomp}
+    \theta_{\lat{\mathbf{r}}} = \sum_{\lat{r} = 1}^{\lat{R}}  \prod_{m=1}^M \theta^{(M + m)}_{\lat{r_m r}}
+\end{align}
+reduces the number of core tensor parameters from $\ms{\prod}_{m=1}^M \lat{R_m}$ to ${\lat{R}(\sum_{m=1}^M \lat{R_m})}$, a quantity linear in $M$. 
+This modification corresponds to the string $
+    \obs{i_1} \lat{r_1}, \!\dots\!, \obs{i_M}\lat{r_M}, \lat{r_1r},\dots,\lat{r_Mr}  \to \obs{i_1}\dots\obs{i_M}.$~\looseness=-1
+    
+We can construct other decompositions, such as the many-body approximation~\citep{ghalamkari2023many}, which consists of matrices corresponding to pairs of observed indices. For the three-mode setting, $\obs{i_1 i_2}, \obs{i_2 i_3}, \obs{i_1 i_3} \to \obs{i_1 i_2 i _3}$.
+Additionally, the custom models 
+\begin{align*}
+\obs{i_1}\lat{r_1}, \obs{i_2 i_3}\lat{r_1} &\to \obs{i_1 i_2 i _3}\\
+    \obs{i_1}, \obs{i_2}\lat{r_1}, \obs{i_3}\lat{r_1} &\to \obs{i_1 i_2 i _3}\\ 
+    \obs{i_1}\lat{r_1}, \obs{i_2}\lat{r_2},\obs{i_3}\lat{r_2},\lat{r_1r_2}  &\to \obs{i_1 i_2 i _3}
+\end{align*}
+    are all members of this family. Given the scope of \eqref{eq:contraction_structure}, we turn to the problem of estimating \textit{any} factorization of this form.~\looseness=-1
