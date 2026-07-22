@@ -50,6 +50,21 @@ class TwoT4MU:
             else: n=sum(x[0] for x in pair); d=sum(x[1] for x in pair)
             # gamma_ab = 1/alpha = 1 for (alpha=1, beta=0), so ratio^1 = ratio.
             self.cpu[q]*=np.clip((n/d).numpy(),1e-10,1e10)
+    def train_divergence(self):
+        """Average training (1,0)-divergence on observed entries."""
+        def one(s):
+            d=self.dev[s]
+            with torch.cuda.device(d):
+                p=[torch.as_tensor(x,device=d) for x in self.cpu]; p[3]=p[3][self.slices[s]]
+                yhat=torch.einsum(self.model,*p).clamp_min_(1e-10)
+                ys=self.y[s]; ob=self.obs[s]
+                yo=ys[ob]; yhat_o=yhat[ob]
+                pos = yo > 0
+                div_sum = yhat_o.sum() - yo.sum() + (yo[pos] * torch.log(yo[pos] / yhat_o[pos])).sum()
+                count = ob.sum()
+                torch.cuda.synchronize(d)
+                return div_sum.cpu(), count.cpu()
+        z=list(self.pool.map(one,range(2))); return float(sum(x[0] for x in z)/sum(x[1] for x in z))
     def heldout_divergence(self):
         """Average heldout (1,0)-divergence = generalised KL."""
         def one(s):
@@ -62,25 +77,33 @@ class TwoT4MU:
                 # D_{1,0}(x,y) = y - x + x*log(x/y)  for x > 0
                 #              = y                     for x = 0
                 pos = yh > 0
-                div_sum = yhat_h.sum()  # sum of y_hat terms (covers both x>0 and x=0)
-                div_sum = div_sum - yh.sum()  # subtract x for all (x=0 terms contribute 0)
-                div_sum = div_sum + (yh[pos] * torch.log(yh[pos] / yhat_h[pos])).sum()  # x*log(x/y) for x>0
+                div_sum = yhat_h.sum() - yh.sum() + (yh[pos] * torch.log(yh[pos] / yhat_h[pos])).sum()
                 count = ho.sum()
                 torch.cuda.synchronize(d)
                 return div_sum.cpu(), count.cpu()
         z=list(self.pool.map(one,range(2))); return float(sum(x[0] for x in z)/sum(x[1] for x in z))
-    def fit(self, iters):
+    def fit(self, max_iters):
         hist=[]; start=time.perf_counter()
-        for _ in range(iters): self.step(); hist.append(self.heldout_divergence())
-        return hist,time.perf_counter()-start
+        prev_train = None
+        for it in range(max_iters):
+            self.step()
+            heldout = self.heldout_divergence()
+            hist.append(heldout)
+            # Convergence check: stop if training loss change < 1e-6 after 100 iters
+            if (it + 1) % 10 == 0 or it == max_iters - 1:
+                train = self.train_divergence()
+                if prev_train is not None and it >= 99 and abs(prev_train - train) < 1e-6:
+                    break
+                prev_train = train
+        return hist, time.perf_counter()-start
 
 def run(y,h,model,shapes,args):
     m=TwoT4MU(y,h,model,shapes,args.seed); return m.fit(args.iterations)
 def main():
-    p=argparse.ArgumentParser(); add_common(p); p.set_defaults(iterations=200); a=p.parse_args()
+    p=argparse.ArgumentParser(); add_common(p); p.set_defaults(iterations=1000); a=p.parse_args()
     y,h=load(a,(27,7,24,100,100)); shapes=dict(w=27,h=7,d=24,i=100,j=100,r=10,k=24)
     custom,ct=run(y,h,'wr,hr,dr,ikr,jkr->whdij',shapes,a)
     cp,pt=run(y,h,'wr,hr,dr,ir,jr->whdij',{**shapes,'r':188},a)
     v1,v2=custom[-1],cp[-1]
-    report(a,{'claim':2,'implementation':'exact two-T4 i-sharded full-batch multiplicative updates','divergence':'alpha=1 beta=0 (KL/Poisson)','split':'provided' if a.heldout else 'hash-5%-NOT-paper-split','custom_parameters':48580,'cp_parameters':188*258,'custom_heldout_div':v1,'cp_heldout_div':v2,'seconds':{'custom':ct,'cp':pt},'targets':{'custom':.0101,'cp':.0104},'pass':abs(v1-.0101)<=.0005 and abs(v2-.0104)<=.0005})
+    report(a,{'claim':2,'implementation':'exact two-T4 i-sharded full-batch multiplicative updates','divergence':'alpha=1 beta=0 (KL/Poisson)','split':'provided' if a.heldout else 'hash-5%-NOT-paper-split','custom_parameters':48580,'cp_parameters':188*258,'custom_heldout_div':v1,'cp_heldout_div':v2,'iterations':{'custom':len(custom),'cp':len(cp)},'seconds':{'custom':ct,'cp':pt},'targets':{'custom':.0101,'cp':.0104},'pass':abs(v1-.0101)<=.0005 and abs(v2-.0104)<=.0005})
 if __name__=='__main__': main()
