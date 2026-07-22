@@ -45,9 +45,11 @@ the authors' split with `--heldout`.
 For Claim 2 specifically, use the authors' bundled `data/Y.npz` artifact with
 the Table-1 runner. It contains the canonical Uber tensor from `demo.ipynb`;
 the locally rebuilt `DATA/uber.npy` is not byte-equivalent after spatial binning.
-The Table-1 model is `R=10, K=6` (12,580 parameters) and its comparable CP
-baseline is rank 49 (12,642 parameters). The 48,580-parameter count refers to
-the separate 400×400 qualitative figure, not the 100×100 Table-1 experiment.
+The Table-1-scale model is `R=40, K=6` (50,320 parameters) and its comparable
+CP baseline is rank 195 (50,310 parameters). The `R=10, K=6`,
+48,580-parameter setup refers to the separate 400×400 qualitative figure; on
+the 100×100 Table-1 grid, comparable capacity requires increasing `R`, not
+changing `K` to 24.
 
 Run the full Table-1 check with:
 

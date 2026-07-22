@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 """Reproduce the Uber alpha=1.0 row of Table 1.
 
-Table 1 uses the 27 x 7 x 24 x 100 x 100 Uber tensor.  Its custom model is
-``wr,hr,dr,ikr,jkr->whdij`` with R=10 temporal classes and K=6 spatial
-components per temporal class (12,580 parameters).  A rank-49 CP model has a
-comparable 12,642 parameters.  The 48,580-parameter R=10, K=6 configuration
-described later in the paper is *only* for the qualitative 400 x 400 grid; it
-must not be projected back to a 100 x 100 grid by changing K to 24.
+Table 1 uses the 27 x 7 x 24 x 100 x 100 Uber tensor.  The parameter-matched
+Table-1-scale configuration is ``R=40, K=6`` for the custom model
+``wr,hr,dr,ikr,jkr->whdij`` (50,320 parameters) and rank-195 CP (50,310
+parameters).  The paper's separate qualitative 400 x 400 fit uses ``R=10,
+K=6`` (48,580 parameters).  Moving that configuration to a 100 x 100 grid
+requires increasing the number of *temporal* classes to retain a comparable
+parameter budget; changing K to 24 leaves an underpowered R=10 temporal model.
 
 The paper reports means over ten independent 90/10 train--heldout splits,
 with 5% of each training split reserved for validation stopping.  The paper
@@ -36,9 +37,9 @@ from einfact import swap
 
 
 UBER_SHAPE = (27, 7, 24, 100, 100)
-CUSTOM_RANK = 10
+CUSTOM_RANK = 40
 CUSTOM_SPATIAL_RANK = 6
-CP_RANK = 49
+CP_RANK = 195
 HELDOUT_FRACTION = 0.10
 VALIDATION_FRACTION = 0.05
 
